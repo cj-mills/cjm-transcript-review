@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "cjm-transcript-review"
+  site-url: "https://cj-mills.github.io/cjm-transcript-review"
+  description: "FastHTML Reader View component for verifying transcript segmentation with audio playback and context graph commit."
+  repo-branch: main
+  repo-url: "https://github.com/cj-mills/cjm-transcript-review"
