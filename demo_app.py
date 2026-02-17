@@ -6,13 +6,13 @@ keyboard navigation, and commit to graph. Works standalone for testing.
 Run with: python demo_app.py
 """
 
-from typing import List, Dict, Any, Callable, Tuple
+from typing import List, Dict, Any, Callable
 from pathlib import Path
 import tempfile
 import json
 
 from fasthtml.common import (
-    fast_app, Div, H1, P, Span, Button, Details, Summary,
+    fast_app, Div, H1, P, Span, Button,
     APIRouter, FileResponse,
 )
 
@@ -25,9 +25,6 @@ from cjm_fasthtml_daisyui.core.resources import get_daisyui_headers
 from cjm_fasthtml_daisyui.core.testing import create_theme_persistence_script
 from cjm_fasthtml_daisyui.components.actions.button import btn, btn_colors, btn_sizes
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles, badge_sizes
-from cjm_fasthtml_daisyui.components.data_display.collapse import (
-    collapse, collapse_title, collapse_content, collapse_modifiers
-)
 from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui, border_dui
 from cjm_fasthtml_daisyui.utilities.border_radius import border_radius
 
@@ -54,13 +51,7 @@ from cjm_fasthtml_interactions.core.state_store import get_session_id
 # State store
 from cjm_workflow_state.state_store import SQLiteWorkflowStateStore
 
-# Keyboard navigation
-from cjm_fasthtml_keyboard_navigation.core.manager import ZoneManager
-from cjm_fasthtml_keyboard_navigation.components.system import render_keyboard_system
-from cjm_fasthtml_keyboard_navigation.components.hints import render_keyboard_hints
-
 # Card stack library
-from cjm_fasthtml_card_stack.keyboard.actions import build_card_stack_url_map
 from cjm_fasthtml_card_stack.components.controls import render_width_slider
 from cjm_fasthtml_card_stack.components.states import render_loading_state
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
@@ -79,11 +70,10 @@ from cjm_transcript_review.services.graph import GraphService
 from cjm_transcript_review.components.card_stack_config import (
     REVIEW_CS_CONFIG, REVIEW_CS_IDS, REVIEW_CS_BTN_IDS,
 )
-from cjm_transcript_review.components.keyboard_config import create_review_kb_parts
 from cjm_transcript_review.components.review_card import AssembledSegment
 from cjm_transcript_review.components.step_renderer import (
     render_review_step, render_review_toolbar, render_review_footer,
-    render_review_content, render_review_stats,
+    render_review_content, render_review_stats, render_review_keyboard_hints,
 )
 from cjm_transcript_review.routes.init import init_review_routers
 from cjm_transcript_review.routes.core import (
@@ -121,87 +111,6 @@ def load_test_state() -> Dict[str, Any]:
     """Load test state from JSON file."""
     with open(TEST_STATE_JSON, "r") as f:
         return json.load(f)
-
-
-# =============================================================================
-# Single-Zone Keyboard System
-# =============================================================================
-
-def build_single_zone_kb_system(
-    urls: ReviewUrls,
-) -> Tuple[ZoneManager, Any]:
-    """Build single-zone keyboard system for review only."""
-    # Get review-specific building blocks
-    review_zone, review_actions, review_modes = create_review_kb_parts(
-        ids=REVIEW_CS_IDS,
-        button_ids=REVIEW_CS_BTN_IDS,
-        config=REVIEW_CS_CONFIG,
-    )
-
-    # Assemble into ZoneManager (single zone, no zone switching)
-    kb_manager = ZoneManager(
-        zones=(review_zone,),
-        actions=review_actions,
-        modes=review_modes,
-        initial_zone_id=review_zone.id,
-        state_hidden_inputs=True,
-    )
-
-    # Build URL maps
-    # Include only the card stack focused index input
-    include_selector = f"#{REVIEW_CS_IDS.focused_index_input}"
-
-    # URL mappings (card stack navigation only)
-    url_map = build_card_stack_url_map(REVIEW_CS_BTN_IDS, urls.card_stack)
-
-    # Target maps
-    target = f"#{REVIEW_CS_IDS.card_stack}"
-    target_map = {btn_id: target for btn_id in url_map}
-
-    # Include maps
-    include_map = {btn_id: include_selector for btn_id in url_map}
-
-    # Swap map (none for all - OOB swaps handle updates)
-    swap_map = {btn_id: "none" for btn_id in url_map}
-
-    kb_system = render_keyboard_system(
-        kb_manager,
-        url_map=url_map,
-        target_map=target_map,
-        include_map=include_map,
-        swap_map=swap_map,
-        show_hints=False,
-        include_state_inputs=True,
-    )
-
-    return kb_manager, kb_system
-
-
-def render_keyboard_hints_collapsible(
-    manager: ZoneManager,
-    container_id: str = "review-demo-kb-hints",
-) -> Any:
-    """Render keyboard shortcut hints in a collapsible DaisyUI collapse."""
-    hints = render_keyboard_hints(
-        manager,
-        include_navigation=True,
-        include_zone_switch=False,
-        badge_style="outline",
-        container_id=container_id,
-        use_icons=False
-    )
-
-    return Details(
-        Summary(
-            "Keyboard Shortcuts",
-            cls=combine_classes(collapse_title, font_size.sm, font_weight.medium)
-        ),
-        Div(
-            hints,
-            cls=collapse_content
-        ),
-        cls=combine_classes(collapse, collapse_modifiers.arrow, bg_dui.base_200)
-    )
 
 
 # =============================================================================
@@ -245,10 +154,7 @@ def create_demo_init_handler(
         ctx = _load_review_context(state_store, workflow_id, session_id)
         assembled = _get_assembled_segments(ctx)
 
-        # Build single-zone KB system
-        kb_manager, kb_system = build_single_zone_kb_system(urls)
-
-        # Render main content with keyboard system
+        # Render main content (keyboard system is managed internally)
         content = render_review_content(
             assembled=assembled,
             focused_index=ctx.focused_index,
@@ -256,7 +162,6 @@ def create_demo_init_handler(
             card_width=ctx.card_width,
             urls=urls,
             media_path=ctx.media_path,
-            kb_system=kb_system,
         )
 
         # OOB updates for chrome
@@ -283,9 +188,9 @@ def create_demo_init_handler(
             hx_swap_oob="innerHTML"
         )
 
-        # Hints OOB
+        # Hints OOB (use library's hints function)
         hints_oob = Div(
-            render_keyboard_hints_collapsible(kb_manager),
+            render_review_keyboard_hints(),
             id=DemoHtmlIds.SHARED_HINTS,
             hx_swap_oob="innerHTML"
         )

@@ -36,5 +36,8 @@ class ReviewHtmlIds:
     REVIEW_STATS = "sd-review-stats"
     REVIEW_FOOTER = "sd-review-footer"
     
+    # Keyboard
+    KEYBOARD_HINTS = "sd-review-keyboard-hints"
+    
     # Audio
     AUDIO_PLAYER = "sd-review-audio-player"

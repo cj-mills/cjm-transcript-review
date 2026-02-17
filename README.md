@@ -59,31 +59,32 @@ graph LR
     components_review_card --> utils
     components_review_card --> html_ids
     components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_review_card
-    components_step_renderer --> models
-    components_step_renderer --> html_ids
     components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_review_card
+    components_step_renderer --> html_ids
+    components_step_renderer --> models
     components_step_renderer --> components_callbacks
-    routes_audio --> routes_core
+    components_step_renderer --> components_keyboard_config
     routes_audio --> models
+    routes_audio --> routes_core
     routes_card_stack --> components_card_stack_config
     routes_card_stack --> components_review_card
-    routes_card_stack --> routes_core
     routes_card_stack --> models
+    routes_card_stack --> routes_core
     routes_commit --> models
-    routes_commit --> routes_core
     routes_commit --> services_graph
-    routes_core --> components_review_card
+    routes_commit --> routes_core
     routes_core --> models
-    routes_init --> routes_audio
-    routes_init --> routes_card_stack
+    routes_core --> components_review_card
     routes_init --> models
-    routes_init --> routes_core
     routes_init --> services_graph
     routes_init --> routes_commit
+    routes_init --> routes_audio
+    routes_init --> routes_card_stack
+    routes_init --> routes_core
 ```
 
-*26 cross-module dependencies detected*
+*27 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -713,7 +714,8 @@ def init_review_routers(
 
 ``` python
 from cjm_transcript_review.components.keyboard_config import (
-    create_review_kb_parts
+    create_review_kb_parts,
+    create_review_keyboard_manager
 )
 ```
 
@@ -726,6 +728,15 @@ def create_review_kb_parts(
     config:CardStackConfig,  # Card stack configuration
 ) -> Tuple[FocusZone, tuple, tuple]:  # (zone, actions, modes)
     "Create review-specific keyboard building blocks."
+```
+
+``` python
+def create_review_keyboard_manager(
+    ids:CardStackHtmlIds,  # Card stack HTML IDs
+    button_ids:CardStackButtonIds,  # Card stack button IDs for navigation
+    config:CardStackConfig,  # Card stack configuration
+) -> ZoneManager:  # Configured keyboard zone manager
+    "Create the keyboard zone manager for the review step."
 ```
 
 ### models (`models.ipynb`)
@@ -874,6 +885,7 @@ from cjm_transcript_review.components.step_renderer import (
     DEBUG_REVIEW_RENDER,
     render_review_toolbar,
     render_review_stats,
+    render_review_keyboard_hints,
     render_review_content,
     render_review_footer,
     render_review_step
@@ -903,6 +915,13 @@ def render_review_stats(
 ```
 
 ``` python
+def render_review_keyboard_hints(
+    oob:bool=False,  # Whether to render as OOB swap
+) -> Any:  # Collapsible keyboard hints component
+    "Render keyboard shortcut hints in a collapsible container."
+```
+
+``` python
 def render_review_content(
     assembled:List[AssembledSegment],  # Assembled segments to display
     focused_index:int,  # Currently focused segment index
@@ -910,9 +929,8 @@ def render_review_content(
     card_width:int,  # Card stack width in rem
     urls:ReviewUrls,  # URL bundle for review routes
     media_path:Optional[str]=None,  # Path to audio file for playback
-    kb_system:Optional[Any]=None,  # Rendered keyboard system (None when KB managed externally)
 ) -> Any:  # Main content area
-    "Render the review content area with card stack viewport."
+    "Render the review content area with card stack viewport and keyboard system."
 ```
 
 ``` python
@@ -934,7 +952,6 @@ def render_review_step(
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
     urls:ReviewUrls=None,  # URL bundle for review routes
     media_path:Optional[str]=None,  # Path to audio file for playback
-    kb_system:Optional[Any]=None,  # Rendered keyboard system (optional)
 ) -> Any:  # Complete review step component
     "Render the complete review step with toolbar, content, and footer."
 ```
