@@ -8,3 +8,173 @@
 ``` bash
 pip install cjm_transcript_review
 ```
+
+## Project Structure
+
+    nbs/
+    ├── services/ (1)
+    │   └── graph.ipynb  # Graph service for committing documents and segments to the context graph
+    ├── html_ids.ipynb  # HTML ID constants for Phase 3: Review & Commit
+    └── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
+
+Total: 3 notebooks across 1 directory
+
+## Module Dependencies
+
+``` mermaid
+graph LR
+    html_ids[html_ids<br/>html_ids]
+    models[models<br/>models]
+    services_graph[services.graph<br/>graph]
+```
+
+No cross-module dependencies detected.
+
+## CLI Reference
+
+No CLI commands found in this project.
+
+## Module Overview
+
+Detailed documentation for each module in the project:
+
+### graph (`graph.ipynb`)
+
+> Graph service for committing documents and segments to the context
+> graph
+
+#### Import
+
+``` python
+from cjm_transcript_review.services.graph import (
+    GraphService
+)
+```
+
+#### Classes
+
+``` python
+class GraphService:
+    def __init__(
+        self,
+        plugin_manager:PluginManager,  # Plugin manager for accessing graph plugin
+        plugin_name:str="cjm-graph-plugin-sqlite",  # Name of the graph plugin
+    )
+    "Service for committing structure to context graph."
+    
+    def __init__(
+            self,
+            plugin_manager:PluginManager,  # Plugin manager for accessing graph plugin
+            plugin_name:str="cjm-graph-plugin-sqlite",  # Name of the graph plugin
+        )
+        "Initialize the graph service."
+    
+    def is_available(self) -> bool:  # True if plugin is loaded and ready
+            """Check if the graph plugin is available."""
+            return self._manager.get_plugin(self._plugin_name) is not None
+        
+        def ensure_loaded(
+            self,
+            config:Optional[Dict[str, Any]]=None,  # Optional plugin configuration
+        ) -> bool:  # True if successfully loaded
+        "Check if the graph plugin is available."
+    
+    def ensure_loaded(
+            self,
+            config:Optional[Dict[str, Any]]=None,  # Optional plugin configuration
+        ) -> bool:  # True if successfully loaded
+        "Ensure the graph plugin is loaded."
+    
+    async def commit_document_async(
+            self,
+            title:str,  # Document title
+            text_segments:List[TextSegment],  # Text segments from decomposition
+            vad_chunks:List[VADChunk],  # VAD chunks for timing (1:1 with segments)
+            media_type:str="audio",  # Source media type
+        ) -> Dict[str, Any]:  # Result with document_id and segment_ids
+        "Commit a document to the context graph.
+
+Assembles text segments with VAD timing at commit time.
+Requires 1:1 alignment: len(text_segments) == len(vad_chunks)."
+    
+    def commit_document(
+            self,
+            title:str,  # Document title
+            text_segments:List[TextSegment],  # Text segments from decomposition
+            vad_chunks:List[VADChunk],  # VAD chunks for timing
+            media_type:str="audio",  # Source media type
+        ) -> Dict[str, Any]:  # Result with document_id and segment_ids
+        "Commit a document to the context graph synchronously."
+```
+
+### html_ids (`html_ids.ipynb`)
+
+> HTML ID constants for Phase 3: Review & Commit
+
+#### Import
+
+``` python
+from cjm_transcript_review.html_ids import (
+    ReviewHtmlIds
+)
+```
+
+#### Classes
+
+``` python
+class ReviewHtmlIds:
+    "HTML ID constants for Phase 3: Review & Commit."
+    
+    def as_selector(
+            id_str:str  # The HTML ID to convert
+        ) -> str:  # CSS selector with # prefix
+        "Convert an ID to a CSS selector format."
+```
+
+### models (`models.ipynb`)
+
+> Review step state and working document model for Phase 3: Review &
+> Commit
+
+#### Import
+
+``` python
+from cjm_transcript_review.models import (
+    ReviewStepState,
+    WorkingDocument
+)
+```
+
+#### Classes
+
+``` python
+class ReviewStepState(TypedDict):
+    "State for Phase 3: Review & Commit."
+```
+
+``` python
+@dataclass
+class WorkingDocument:
+    "Container for workflow state during structure decomposition."
+    
+    title: str = ''  # Document title
+    media_type: str = 'audio'  # Source media type ('audio', 'video', 'text')
+    media_path: Optional[str]  # Path to primary source media
+    source_blocks: List[SourceBlock] = field(...)  # Ordered source blocks
+    combined_text: str = ''  # Concatenated text from all sources
+    segments: List[TextSegment] = field(...)  # Decomposed segments
+    vad_chunks: List[VADChunk] = field(...)  # VAD time ranges
+    audio_duration: Optional[float]  # Total audio duration in seconds
+    
+    def to_dict(self) -> Dict[str, Any]:  # Dictionary representation
+            """Convert to dictionary for JSON serialization."""
+            return {
+                'title': self.title,
+        "Convert to dictionary for JSON serialization."
+    
+    def from_dict(
+            cls,
+            data: Dict[str, Any]  # Dictionary representation
+        ) -> "WorkingDocument":  # Reconstructed WorkingDocument
+        "Create from dictionary."
+```
