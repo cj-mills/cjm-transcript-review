@@ -1,7 +1,7 @@
 """Demo application for cjm-transcript-review library.
 
 Demonstrates the Review card stack with navigation, audio playback,
-and keyboard navigation. Works standalone for testing the review step.
+keyboard navigation, and commit to graph. Works standalone for testing.
 
 Run with: python demo_app.py
 """
@@ -16,9 +16,14 @@ from fasthtml.common import (
     APIRouter, FileResponse,
 )
 
+# Plugin system
+from cjm_plugin_system.core.manager import PluginManager
+from cjm_plugin_system.core.scheduling import SafetyScheduler
+
 # DaisyUI components
 from cjm_fasthtml_daisyui.core.resources import get_daisyui_headers
 from cjm_fasthtml_daisyui.core.testing import create_theme_persistence_script
+from cjm_fasthtml_daisyui.components.actions.button import btn, btn_colors, btn_sizes
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles, badge_sizes
 from cjm_fasthtml_daisyui.components.data_display.collapse import (
     collapse, collapse_title, collapse_content, collapse_modifiers
@@ -64,9 +69,13 @@ from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAUL
 from cjm_transcript_segmentation.models import TextSegment
 from cjm_transcript_vad_align.models import VADChunk
 
+# Lucide icons
+from cjm_fasthtml_lucide_icons.factory import lucide_icon
+
 # Review library imports
 from cjm_transcript_review.models import ReviewUrls
 from cjm_transcript_review.html_ids import ReviewHtmlIds
+from cjm_transcript_review.services.graph import GraphService
 from cjm_transcript_review.components.card_stack_config import (
     REVIEW_CS_CONFIG, REVIEW_CS_IDS, REVIEW_CS_BTN_IDS,
 )
@@ -97,6 +106,7 @@ class DemoHtmlIds:
     MINI_STATS = "review-demo-mini-stats"
     KEYBOARD_SYSTEM = "review-demo-kb-system"
     SHARED_HINTS = "review-demo-hints"
+    COMMIT_ALERT_CONTAINER = "commit-alert-container"
 
 
 # =============================================================================
@@ -396,16 +406,35 @@ def render_demo_page(
             )
         )
 
+        # Commit button (only shown if commit URL is available)
+        commit_button = None
+        if urls.commit:
+            commit_button = Button(
+                lucide_icon("database"),
+                Span("Commit to Graph", cls=str(m.l(2))),
+                cls=combine_classes(btn, btn_colors.success, btn_sizes.sm, flex_display, items.center),
+                hx_post=urls.commit,
+                hx_swap="none",
+            )
+
+        # Alert container for commit feedback
+        alert_container = Div(id=DemoHtmlIds.COMMIT_ALERT_CONTAINER)
+
         return Div(
-            # Header
+            # Header with commit button
             Div(
                 H1("Review Demo",
                    cls=combine_classes(font_size._3xl, font_weight.bold)),
-                P(
-                    "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
-                    cls=combine_classes(text_dui.base_content.opacity(70), m.b(2))
-                ),
+                commit_button,
+                cls=combine_classes(flex_display, justify.between, items.center)
             ),
+            P(
+                "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
+                cls=combine_classes(text_dui.base_content.opacity(70), m.b(2))
+            ),
+
+            # Alert container (for commit feedback)
+            alert_container,
 
             # Shared chrome
             hints,
@@ -472,6 +501,41 @@ def main():
     print(f"  Test state JSON: {TEST_STATE_JSON}")
 
     # -------------------------------------------------------------------------
+    # Set up plugin manager and graph service
+    # -------------------------------------------------------------------------
+    print("\n[Plugin System]")
+
+    # Calculate project root from demo_app.py location
+    project_root = Path(__file__).parent
+    manifests_dir = project_root / ".cjm" / "manifests"
+
+    plugin_manager = PluginManager(
+        scheduler=SafetyScheduler(),
+        search_paths=[manifests_dir]
+    )
+    plugin_manager.discover_manifests()
+
+    # Load the graph plugin
+    graph_plugin_name = "cjm-graph-plugin-sqlite"
+    graph_meta = plugin_manager.get_discovered_meta(graph_plugin_name)
+    graph_service = None
+
+    if graph_meta:
+        try:
+            success = plugin_manager.load_plugin(graph_meta, {
+                "db_path": graph_meta.manifest.get("db_path")
+            })
+            status = "loaded" if success else "failed"
+            print(f"  {graph_plugin_name}: {status}")
+
+            if success:
+                graph_service = GraphService(plugin_manager, graph_plugin_name)
+        except Exception as e:
+            print(f"  {graph_plugin_name}: error - {e}")
+    else:
+        print(f"  {graph_plugin_name}: not found (commit disabled)")
+
+    # -------------------------------------------------------------------------
     # Audio serving route
     # -------------------------------------------------------------------------
     audio_router = APIRouter(prefix="/audio")
@@ -494,6 +558,8 @@ def main():
         workflow_id=workflow_id,
         prefix="/review",
         audio_src_url=audio_src_url,
+        graph_service=graph_service,
+        alert_container_id=DemoHtmlIds.COMMIT_ALERT_CONTAINER,
     )
 
     # Create init handler

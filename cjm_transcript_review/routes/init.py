@@ -6,16 +6,20 @@
 __all__ = ['init_review_routers']
 
 # %% ../../nbs/routes/init.ipynb #review-init-imports
-from typing import List, Dict, Callable, Tuple
+from typing import List, Dict, Callable, Tuple, Optional
 
 from fasthtml.common import APIRouter
 
 from cjm_fasthtml_card_stack.core.models import CardStackUrls
 
+from cjm_plugin_system.core.manager import PluginManager
+
 from ..models import ReviewUrls
+from ..services.graph import GraphService
 from .core import WorkflowStateStore
 from .card_stack import init_card_stack_router
 from .audio import init_audio_router
+from .commit import init_commit_router
 
 # %% ../../nbs/routes/init.ipynb #review-init-assembly
 def init_review_routers(
@@ -23,6 +27,8 @@ def init_review_routers(
     workflow_id:str,  # The workflow identifier
     prefix:str,  # Base prefix for review routes (e.g., "/workflow/review")
     audio_src_url:str="",  # Audio source route (from core routes)
+    graph_service:Optional[GraphService]=None,  # Graph service for commit (None = no commit route)
+    alert_container_id:str="commit-alert-container",  # ID of container for commit alerts
 ) -> Tuple[List[APIRouter], ReviewUrls, Dict[str, Callable]]:  # (routers, urls, routes)
     """Initialize and return all review routers with URL bundle."""
     # Create empty URL bundle (populated after routes are defined)
@@ -55,8 +61,16 @@ def init_review_routers(
     urls.replay_current = audio_routes["replay_current"].to()
     
     routers = [card_stack_router, audio_router]
-    
-    # Combine all routes for caller
     all_routes = {**card_stack_routes, **audio_routes}
+    
+    # Initialize commit router (optional - only if graph_service provided)
+    if graph_service is not None:
+        commit_router, commit_routes = init_commit_router(
+            state_store, workflow_id, f"{prefix}/commit",
+            graph_service, urls, alert_container_id
+        )
+        urls.commit = commit_routes["commit"].to()
+        routers.append(commit_router)
+        all_routes.update(commit_routes)
     
     return routers, urls, all_routes

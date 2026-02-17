@@ -20,9 +20,10 @@ pip install cjm_transcript_review
     │   ├── keyboard_config.ipynb    # Review-specific keyboard building blocks for assembly into a KeyboardManager
     │   ├── review_card.ipynb        # Review card component showing assembled segment with timing and source info
     │   └── step_renderer.ipynb      # Composable render functions for the review card stack step
-    ├── routes/ (4)
+    ├── routes/ (5)
     │   ├── audio.ipynb       # Route handlers for audio playback controls
     │   ├── card_stack.ipynb  # Card stack UI operations — navigation, viewport, and response builders
+    │   ├── commit.ipynb      # Route handler for committing the document to the context graph
     │   ├── core.ipynb        # Review step state management helpers
     │   └── init.ipynb        # Router assembly for Phase 3 review routes
     ├── services/ (1)
@@ -31,7 +32,7 @@ pip install cjm_transcript_review
     ├── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
     └── utils.ipynb     # Time formatting and source info display utilities for review cards
 
-Total: 15 notebooks across 3 directories
+Total: 16 notebooks across 3 directories
 
 ## Module Dependencies
 
@@ -48,6 +49,7 @@ graph LR
     models[models<br/>models]
     routes_audio[routes.audio<br/>audio]
     routes_card_stack[routes.card_stack<br/>card_stack]
+    routes_commit[routes.commit<br/>commit]
     routes_core[routes.core<br/>core]
     routes_init[routes.init<br/>init]
     services_graph[services.graph<br/>graph]
@@ -57,26 +59,31 @@ graph LR
     components_review_card --> utils
     components_review_card --> html_ids
     components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_callbacks
-    components_step_renderer --> components_audio_controls
     components_step_renderer --> components_review_card
     components_step_renderer --> models
     components_step_renderer --> html_ids
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_callbacks
     routes_audio --> routes_core
     routes_audio --> models
-    routes_card_stack --> routes_core
     routes_card_stack --> components_card_stack_config
     routes_card_stack --> components_review_card
+    routes_card_stack --> routes_core
     routes_card_stack --> models
+    routes_commit --> models
+    routes_commit --> routes_core
+    routes_commit --> services_graph
     routes_core --> components_review_card
     routes_core --> models
     routes_init --> routes_audio
-    routes_init --> routes_core
-    routes_init --> models
     routes_init --> routes_card_stack
+    routes_init --> models
+    routes_init --> routes_core
+    routes_init --> services_graph
+    routes_init --> routes_commit
 ```
 
-*21 cross-module dependencies detected*
+*26 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -328,6 +335,75 @@ from cjm_transcript_review.components.card_stack_config import (
 REVIEW_CS_CONFIG
 REVIEW_CS_IDS
 REVIEW_CS_BTN_IDS
+```
+
+### commit (`commit.ipynb`)
+
+> Route handler for committing the document to the context graph
+
+#### Import
+
+``` python
+from cjm_transcript_review.routes.commit import (
+    DEBUG_COMMIT_ROUTES,
+    COMMIT_ALERT_ID,
+    CommitResult,
+    init_commit_router
+)
+```
+
+#### Functions
+
+``` python
+def _render_commit_alert(
+    result:CommitResult,  # Commit operation result
+    auto_dismiss_ms:int=5000,  # Auto-dismiss after milliseconds (0 = no auto-dismiss)
+) -> Div:  # Alert element with optional auto-dismiss script
+    "Render a success or error alert for commit result."
+```
+
+``` python
+async def _handle_commit(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str,  # Session identifier string
+    graph_service:GraphService,  # Graph service for committing
+    document_title:Optional[str]=None,  # Override document title (None = use state)
+) -> CommitResult:  # Result of the commit operation
+    "Handle committing the document to the context graph."
+```
+
+``` python
+def init_commit_router(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    prefix:str,  # Base prefix for commit route
+    graph_service:GraphService,  # Graph service for committing
+    urls:ReviewUrls,  # URL bundle to populate
+    alert_container_id:str="commit-alert-container",  # ID of container for alert OOB swap
+) -> Tuple[APIRouter, Dict[str, Callable]]:  # (router, routes dict)
+    "Initialize commit route."
+```
+
+#### Classes
+
+``` python
+@dataclass
+class CommitResult:
+    "Result of a commit operation."
+    
+    success: bool  # Whether the commit succeeded
+    document_id: Optional[str]  # Created document node ID
+    segment_count: int = 0  # Number of segments committed
+    edge_count: int = 0  # Number of edges created
+    error: Optional[str]  # Error message if failed
+```
+
+#### Variables
+
+``` python
+DEBUG_COMMIT_ROUTES = False
+COMMIT_ALERT_ID = 'commit-alert'
 ```
 
 ### core (`core.ipynb`)
@@ -622,6 +698,8 @@ def init_review_routers(
     workflow_id:str,  # The workflow identifier
     prefix:str,  # Base prefix for review routes (e.g., "/workflow/review")
     audio_src_url:str="",  # Audio source route (from core routes)
+    graph_service:Optional[GraphService]=None,  # Graph service for commit (None = no commit route)
+    alert_container_id:str="commit-alert-container",  # ID of container for commit alerts
 ) -> Tuple[List[APIRouter], ReviewUrls, Dict[str, Callable]]:  # (routers, urls, routes)
     "Initialize and return all review routers with URL bundle."
 ```
