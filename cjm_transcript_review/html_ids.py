@@ -17,8 +17,24 @@ class ReviewHtmlIds:
     ) -> str:  # CSS selector with # prefix
         """Convert an ID to a CSS selector format."""
         return f"#{id_str}"
+    
+    @staticmethod
+    def review_card(
+        index:int  # Segment index
+    ) -> str:  # HTML ID for review card
+        """Generate HTML ID for a review card."""
+        return f"sd-review-card-{index}"
 
     # Main Layout
     REVIEW_CONTAINER = "sd-review-container"
+    REVIEW_CONTENT = "sd-review-content"
     READER_VIEW = "sd-reader-view"
     COMMIT_SUMMARY = "sd-commit-summary"
+    
+    # Toolbar & Stats
+    REVIEW_TOOLBAR = "sd-review-toolbar"
+    REVIEW_STATS = "sd-review-stats"
+    REVIEW_FOOTER = "sd-review-footer"
+    
+    # Audio
+    AUDIO_PLAYER = "sd-review-audio-player"

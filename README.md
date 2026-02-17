@@ -12,23 +12,61 @@ pip install cjm_transcript_review
 ## Project Structure
 
     nbs/
+    ├── components/ (5)
+    │   ├── callbacks.ipynb          # JavaScript callbacks for the review card stack
+    │   ├── card_stack_config.ipynb  # Card stack configuration, HTML IDs, and button IDs for the review card stack
+    │   ├── helpers.ipynb            # State getters for the review step from InteractionContext
+    │   ├── review_card.ipynb        # Review card component showing assembled segment with timing and source info
+    │   └── step_renderer.ipynb      # Composable render functions for the review card stack step
+    ├── routes/ (3)
+    │   ├── card_stack.ipynb  # Card stack UI operations — navigation, viewport, and response builders
+    │   ├── core.ipynb        # Review step state management helpers
+    │   └── init.ipynb        # Router assembly for Phase 3 review routes
     ├── services/ (1)
     │   └── graph.ipynb  # Graph service for committing documents and segments to the context graph
     ├── html_ids.ipynb  # HTML ID constants for Phase 3: Review & Commit
-    └── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
+    ├── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
+    └── utils.ipynb     # Time formatting and source info display utilities for review cards
 
-Total: 3 notebooks across 1 directory
+Total: 12 notebooks across 3 directories
 
 ## Module Dependencies
 
 ``` mermaid
 graph LR
+    components_callbacks[components.callbacks<br/>callbacks]
+    components_card_stack_config[components.card_stack_config<br/>card_stack_config]
+    components_helpers[components.helpers<br/>helpers]
+    components_review_card[components.review_card<br/>review_card]
+    components_step_renderer[components.step_renderer<br/>step_renderer]
     html_ids[html_ids<br/>html_ids]
     models[models<br/>models]
+    routes_card_stack[routes.card_stack<br/>card_stack]
+    routes_core[routes.core<br/>core]
+    routes_init[routes.init<br/>init]
     services_graph[services.graph<br/>graph]
+    utils[utils<br/>utils]
+
+    components_helpers --> models
+    components_review_card --> utils
+    components_review_card --> html_ids
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> components_card_stack_config
+    components_step_renderer --> components_review_card
+    components_step_renderer --> html_ids
+    components_step_renderer --> models
+    routes_card_stack --> routes_core
+    routes_card_stack --> components_card_stack_config
+    routes_card_stack --> components_review_card
+    routes_card_stack --> models
+    routes_core --> components_review_card
+    routes_core --> models
+    routes_init --> routes_core
+    routes_init --> routes_card_stack
+    routes_init --> models
 ```
 
-No cross-module dependencies detected.
+*17 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -37,6 +75,223 @@ No CLI commands found in this project.
 ## Module Overview
 
 Detailed documentation for each module in the project:
+
+### callbacks (`callbacks.ipynb`)
+
+> JavaScript callbacks for the review card stack
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.callbacks import (
+    generate_review_callbacks_script
+)
+```
+
+#### Functions
+
+``` python
+def generate_review_callbacks_script(
+    ids:CardStackHtmlIds,  # Card stack HTML IDs
+    button_ids:CardStackButtonIds,  # Card stack button IDs
+    config:CardStackConfig,  # Card stack configuration
+    urls:CardStackUrls,  # Card stack URL bundle
+    container_id:str,  # ID of the review container (parent of card stack)
+) -> any:  # Script element with all JavaScript callbacks
+    "Generate JavaScript for review card stack."
+```
+
+### card_stack (`card_stack.ipynb`)
+
+> Card stack UI operations — navigation, viewport, and response builders
+
+#### Import
+
+``` python
+from cjm_transcript_review.routes.card_stack import (
+    init_card_stack_router
+)
+```
+
+#### Functions
+
+``` python
+def _build_slots_oob(
+    assembled:List[AssembledSegment],  # Assembled segments with VAD chunks
+    state:CardStackState,  # Card stack viewport state
+    urls:ReviewUrls,  # URL bundle
+) -> List[Any]:  # OOB slot elements
+    "Build OOB slot updates for the viewport sections."
+```
+
+``` python
+def _build_nav_response(
+    assembled:List[AssembledSegment],  # Assembled segments with VAD chunks
+    state:CardStackState,  # Card stack viewport state
+    urls:ReviewUrls,  # URL bundle
+) -> Tuple:  # OOB elements (slots + progress + focus)
+    "Build OOB response for navigation."
+```
+
+``` python
+def _handle_review_navigate(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    sess,  # FastHTML session object
+    direction:str,  # Navigation direction: "up", "down", "first", "last", "page_up", "page_down"
+    urls:ReviewUrls,  # URL bundle for review routes
+):  # OOB slot updates with progress and focus
+    "Navigate to a different segment in the viewport using OOB slot swaps."
+```
+
+``` python
+async def _handle_review_update_viewport(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    request,  # FastHTML request object
+    sess,  # FastHTML session object
+    visible_count:int,  # New number of visible cards
+    urls:ReviewUrls,  # URL bundle for review routes
+):  # Full viewport component (outerHTML swap)
+    "Update the viewport with a new card count."
+```
+
+``` python
+def _handle_review_save_width(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    sess,  # FastHTML session object
+    card_width:int,  # Card stack width in rem
+) -> None:  # No response body (swap=none on client)
+    "Save the card stack width to server state."
+```
+
+``` python
+def init_card_stack_router(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    prefix:str,  # Route prefix (e.g., "/workflow/review/card_stack")
+    urls:ReviewUrls,  # URL bundle (populated after routes defined)
+) -> Tuple[APIRouter, Dict[str, Callable]]:  # (router, route_dict)
+    "Initialize card stack routes for review."
+```
+
+### card_stack_config (`card_stack_config.ipynb`)
+
+> Card stack configuration, HTML IDs, and button IDs for the review card
+> stack
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.card_stack_config import (
+    REVIEW_CS_CONFIG,
+    REVIEW_CS_IDS,
+    REVIEW_CS_BTN_IDS
+)
+```
+
+#### Variables
+
+``` python
+REVIEW_CS_CONFIG
+REVIEW_CS_IDS
+REVIEW_CS_BTN_IDS
+```
+
+### core (`core.ipynb`)
+
+> Review step state management helpers
+
+#### Import
+
+``` python
+from cjm_transcript_review.routes.core import (
+    WorkflowStateStore,
+    DEBUG_REVIEW_STATE,
+    ReviewContext
+)
+```
+
+#### Functions
+
+``` python
+def _get_review_state(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str  # Session identifier string
+) -> ReviewStepState:  # Review step state dictionary
+    "Get the review step state from the workflow state store."
+```
+
+``` python
+def _get_segmentation_state(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str  # Session identifier string
+) -> Dict[str, Any]:  # Segmentation step state dictionary
+    "Get the segmentation step state from the workflow state store."
+```
+
+``` python
+def _get_alignment_state(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str  # Session identifier string
+) -> Dict[str, Any]:  # Alignment step state dictionary
+    "Get the alignment step state from the workflow state store."
+```
+
+``` python
+def _load_review_context(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str  # Session identifier string
+) -> ReviewContext:  # Common review state values
+    "Load commonly-needed review state values including cross-step data."
+```
+
+``` python
+def _get_assembled_segments(
+    ctx:ReviewContext  # Loaded review context
+) -> List[AssembledSegment]:  # Paired segments with VAD chunks
+    "Pair segments with VAD chunks for review display."
+```
+
+``` python
+def _update_review_state(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str,  # Session identifier string
+    focused_index:int=None,  # Updated focused index (None = don't change)
+    visible_count:int=None,  # Visible card count (None = don't change)
+    is_auto_mode:bool=None,  # Auto-adjust mode flag (None = don't change)
+    card_width:int=None,  # Card stack width in rem (None = don't change)
+    document_title:str=None,  # Document title (None = don't change)
+    is_validated:bool=None,  # Validation flag (None = don't change)
+) -> None
+    "Update the review step state in the workflow state store."
+```
+
+``` python
+def _build_card_stack_state(
+    ctx:ReviewContext,  # Loaded review context
+) -> CardStackState:  # Card stack state for library functions
+    "Build a CardStackState from review context for library calls."
+```
+
+#### Classes
+
+``` python
+class ReviewContext(NamedTuple):
+    "Common review state values loaded by handlers."
+```
+
+#### Variables
+
+``` python
+DEBUG_REVIEW_STATE = False
+```
 
 ### graph (`graph.ipynb`)
 
@@ -107,6 +362,84 @@ Requires 1:1 alignment: len(text_segments) == len(vad_chunks)."
         "Commit a document to the context graph synchronously."
 ```
 
+### helpers (`helpers.ipynb`)
+
+> State getters for the review step from InteractionContext
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.helpers import *
+```
+
+#### Functions
+
+``` python
+def _get_review_state(
+    ctx:InteractionContext  # Interaction context with state
+) -> ReviewStepState:  # Typed review step state
+    "Get the full review step state from context."
+```
+
+``` python
+def _get_focused_index(
+    ctx:InteractionContext,  # Interaction context with state
+    default:int=0,  # Default focused index
+) -> int:  # Currently focused segment index
+    "Get the currently focused segment index."
+```
+
+``` python
+def _get_visible_count(
+    ctx:InteractionContext,  # Interaction context with state
+    default:int=5,  # Default visible card count
+) -> int:  # Number of visible cards in viewport
+    "Get the stored visible card count."
+```
+
+``` python
+def _get_is_auto_mode(
+    ctx:InteractionContext,  # Interaction context with state
+) -> bool:  # Whether card count is in auto-adjust mode
+    "Get whether the card count is in auto-adjust mode."
+```
+
+``` python
+def _get_card_width(
+    ctx:InteractionContext,  # Interaction context with state
+    default:int=50,  # Default card width in rem
+) -> int:  # Card stack width in rem
+    "Get the stored card stack width."
+```
+
+``` python
+def _get_segments(
+    ctx:InteractionContext  # Interaction context with state
+) -> List[TextSegment]:  # List of TextSegment objects from segmentation step
+    "Get text segments from segmentation step state."
+```
+
+``` python
+def _get_vad_chunks(
+    ctx:InteractionContext  # Interaction context with state
+) -> List[VADChunk]:  # List of VADChunk objects from alignment step
+    "Get VAD chunks from alignment step state."
+```
+
+``` python
+def _get_media_path(
+    ctx:InteractionContext  # Interaction context with state
+) -> Optional[str]:  # Path to original audio file or None
+    "Get the original audio file path from alignment step."
+```
+
+``` python
+def _is_aligned(
+    ctx:InteractionContext  # Interaction context with state
+) -> bool:  # True if segment count matches VAD chunk count
+    "Check if segments are aligned with VAD chunks (1:1 match)."
+```
+
 ### html_ids (`html_ids.ipynb`)
 
 > HTML ID constants for Phase 3: Review & Commit
@@ -129,6 +462,35 @@ class ReviewHtmlIds:
             id_str:str  # The HTML ID to convert
         ) -> str:  # CSS selector with # prefix
         "Convert an ID to a CSS selector format."
+    
+    def review_card(
+            index:int  # Segment index
+        ) -> str:  # HTML ID for review card
+        "Generate HTML ID for a review card."
+```
+
+### init (`init.ipynb`)
+
+> Router assembly for Phase 3 review routes
+
+#### Import
+
+``` python
+from cjm_transcript_review.routes.init import (
+    init_review_routers
+)
+```
+
+#### Functions
+
+``` python
+def init_review_routers(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    prefix:str,  # Base prefix for review routes (e.g., "/workflow/review")
+    audio_src_url:str="",  # Audio source route (from core routes)
+) -> Tuple[List[APIRouter], ReviewUrls, Dict[str, Callable]]:  # (routers, urls, routes)
+    "Initialize and return all review routers with URL bundle."
 ```
 
 ### models (`models.ipynb`)
@@ -141,6 +503,7 @@ class ReviewHtmlIds:
 ``` python
 from cjm_transcript_review.models import (
     ReviewStepState,
+    ReviewUrls,
     WorkingDocument
 )
 ```
@@ -150,6 +513,16 @@ from cjm_transcript_review.models import (
 ``` python
 class ReviewStepState(TypedDict):
     "State for Phase 3: Review & Commit."
+```
+
+``` python
+@dataclass
+class ReviewUrls:
+    "URL bundle for Phase 3 review route handlers and renderers."
+    
+    card_stack: CardStackUrls = field(...)
+    audio_src: str = ''  # Audio source route
+    commit: str = ''  # Commit handler route
 ```
 
 ``` python
@@ -177,4 +550,211 @@ class WorkingDocument:
             data: Dict[str, Any]  # Dictionary representation
         ) -> "WorkingDocument":  # Reconstructed WorkingDocument
         "Create from dictionary."
+```
+
+### review_card (`review_card.ipynb`)
+
+> Review card component showing assembled segment with timing and source
+> info
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.review_card import (
+    AssembledSegment,
+    render_review_card,
+    create_review_card_renderer
+)
+```
+
+#### Functions
+
+``` python
+def render_review_card(
+    assembled:AssembledSegment,  # Assembled segment with text and timing
+    card_role:CardRole,  # Role of this card in viewport ("focused" or "context")
+) -> Any:  # Review card component
+    "Render a single review card with text, timing, and source info."
+```
+
+``` python
+def create_review_card_renderer() -> Callable:  # Card renderer callback: (item, CardRenderContext) -> FT
+    """Create a card renderer callback for review cards."""
+    def _render(
+        item:Any,  # AssembledSegment instance
+        context:CardRenderContext,  # Render context from card stack library
+    ) -> Any:  # Rendered review card component
+    "Create a card renderer callback for review cards."
+```
+
+#### Classes
+
+``` python
+@dataclass
+class AssembledSegment:
+    "A segment paired with its corresponding VAD chunk for review."
+    
+    segment: TextSegment  # Text segment with content and source info
+    vad_chunk: VADChunk  # VAD chunk with timing
+    
+    def index(self) -> int:  # Segment index for card stack
+            """Get the index from the segment."""
+            return self.segment.index
+        
+        @property
+        def text(self) -> str:  # Segment text content
+        "Get the index from the segment."
+    
+    def text(self) -> str:  # Segment text content
+            """Get the text content from the segment."""
+            return self.segment.text
+        
+        @property
+        def start_time(self) -> float:  # Start time from VAD chunk
+        "Get the text content from the segment."
+    
+    def start_time(self) -> float:  # Start time from VAD chunk
+            """Get the start time from the VAD chunk."""
+            return self.vad_chunk.start_time
+        
+        @property
+        def end_time(self) -> float:  # End time from VAD chunk
+        "Get the start time from the VAD chunk."
+    
+    def end_time(self) -> float:  # End time from VAD chunk
+        "Get the end time from the VAD chunk."
+```
+
+### step_renderer (`step_renderer.ipynb`)
+
+> Composable render functions for the review card stack step
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.step_renderer import (
+    DEBUG_REVIEW_RENDER,
+    render_review_toolbar,
+    render_review_stats,
+    render_review_content,
+    render_review_footer,
+    render_review_step
+)
+```
+
+#### Functions
+
+``` python
+def render_review_toolbar(
+    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Current visible card count
+    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
+    oob:bool=False,  # Whether to render as OOB swap
+) -> Any:  # Toolbar component
+    "Render the review toolbar with card count selector."
+```
+
+``` python
+def render_review_stats(
+    assembled:List[AssembledSegment],  # Assembled segments
+    oob:bool=False,  # Whether to render as OOB swap
+) -> Any:  # Statistics component
+    "Render review statistics."
+```
+
+``` python
+def render_review_content(
+    assembled:List[AssembledSegment],  # Assembled segments to display
+    focused_index:int,  # Currently focused segment index
+    visible_count:int,  # Number of visible cards in viewport
+    card_width:int,  # Card stack width in rem
+    urls:ReviewUrls,  # URL bundle for review routes
+    media_path:Optional[str]=None,  # Path to audio file for playback
+) -> Any:  # Main content area
+    "Render the review content area with card stack viewport."
+```
+
+``` python
+def render_review_footer(
+    assembled:List[AssembledSegment],  # Assembled segments
+    focused_index:int,  # Currently focused segment index
+) -> Any:  # Footer content with progress indicator and stats
+    "Render footer content with progress indicator and statistics."
+```
+
+``` python
+def render_review_step(
+    assembled:List[AssembledSegment],  # Assembled segments to display
+    focused_index:int=0,  # Currently focused segment index
+    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Number of visible cards
+    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
+    card_width:int=DEFAULT_CARD_WIDTH,  # Card stack width in rem
+    urls:ReviewUrls=None,  # URL bundle for review routes
+    media_path:Optional[str]=None,  # Path to audio file for playback
+) -> Any:  # Complete review step component
+    "Render the complete review step with toolbar, content, and footer."
+```
+
+#### Variables
+
+``` python
+DEBUG_REVIEW_RENDER = False
+```
+
+### utils (`utils.ipynb`)
+
+> Time formatting and source info display utilities for review cards
+
+#### Import
+
+``` python
+from cjm_transcript_review.utils import (
+    format_time,
+    format_duration,
+    truncate_id,
+    format_char_range,
+    format_source_info
+)
+```
+
+#### Functions
+
+``` python
+def format_time(
+    seconds:Optional[float]  # Time in seconds
+) -> str:  # Formatted time string (m:ss.s)
+    "Format seconds as m:ss.s for sub-second display."
+```
+
+``` python
+def format_duration(
+    start:Optional[float],  # Start time in seconds
+    end:Optional[float],  # End time in seconds
+) -> str:  # Formatted duration string (e.g., "3.2s")
+    "Format duration from start/end times."
+```
+
+``` python
+def truncate_id(
+    id_str:Optional[str],  # Full ID string
+    length:int=8,  # Number of characters to keep
+) -> str:  # Truncated ID with ellipsis if needed
+    "Truncate an ID string for display, adding ellipsis if truncated."
+```
+
+``` python
+def format_char_range(
+    start_char:Optional[int],  # Start character index
+    end_char:Optional[int],  # End character index
+) -> str:  # Formatted range string (e.g., "char:25-68")
+    "Format character range for source reference display."
+```
+
+``` python
+def format_source_info(
+    provider_id:Optional[str],  # Source provider identifier
+    source_id:Optional[str],  # Source record ID
+    start_char:Optional[int]=None,  # Start character index
+    end_char:Optional[int]=None,  # End character index
+) -> str:  # Formatted source info string
+    "Format source info for display in review cards."
 ```

@@ -162,3 +162,4 @@ checklink/cookies.txt
 plugins_test.yaml
 cjm.yaml
 *.sesskey
+/test_files/

@@ -1,18 +1,19 @@
 """Demo application for cjm-transcript-review library.
 
-Demonstrates the Review & Commit step with card stack navigation,
-audio playback, and graph commit functionality.
+Demonstrates the Review card stack with navigation,
+displaying assembled segments with timing and source info.
 
 Run with: python demo_app.py
 """
 
 from typing import List, Dict, Any, Callable, Tuple
-from functools import wraps
-import asyncio
+from pathlib import Path
+import tempfile
+import json
 
 from fasthtml.common import (
-    fast_app, Div, H1, H2, P, Span, Button, Input, Script,
-    APIRouter, Details, Summary,
+    fast_app, Div, H1, P, Span, Button,
+    APIRouter, FileResponse,
 )
 
 # DaisyUI components
@@ -25,9 +26,11 @@ from cjm_fasthtml_daisyui.utilities.border_radius import border_radius
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
 from cjm_fasthtml_tailwind.utilities.sizing import w, h, min_h, container, max_w
-from cjm_fasthtml_tailwind.utilities.typography import font_size, font_weight, text_align
+from cjm_fasthtml_tailwind.utilities.typography import font_size, font_weight, uppercase, tracking
 from cjm_fasthtml_tailwind.utilities.layout import overflow
 from cjm_fasthtml_tailwind.utilities.borders import border
+from cjm_fasthtml_tailwind.utilities.effects import ring
+from cjm_fasthtml_tailwind.utilities.transitions_and_animation import transition, duration
 from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import (
     flex_display, flex_direction, justify, items, gap, grow
 )
@@ -37,17 +40,36 @@ from cjm_fasthtml_tailwind.core.base import combine_classes
 from cjm_fasthtml_app_core.core.routing import register_routes
 from cjm_fasthtml_app_core.core.htmx import handle_htmx_request
 
+# Interactions library
+from cjm_fasthtml_interactions.core.state_store import get_session_id
+
 # State store
 from cjm_workflow_state.state_store import SQLiteWorkflowStateStore
 
-# Plugin system
-from cjm_plugin_system.core.manager import PluginManager
-from cjm_plugin_system.core.scheduling import SafetyScheduler
+# Card stack library
+from cjm_fasthtml_card_stack.components.controls import render_width_slider
+from cjm_fasthtml_card_stack.components.states import render_loading_state
+from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
+
+# Segmentation and alignment models
+from cjm_transcript_segmentation.models import TextSegment
+from cjm_transcript_vad_align.models import VADChunk
 
 # Review library imports
-from cjm_transcript_review.models import ReviewStepState, WorkingDocument
+from cjm_transcript_review.models import ReviewUrls
 from cjm_transcript_review.html_ids import ReviewHtmlIds
-from cjm_transcript_review.services.graph import GraphService
+from cjm_transcript_review.components.card_stack_config import (
+    REVIEW_CS_CONFIG, REVIEW_CS_IDS,
+)
+from cjm_transcript_review.components.review_card import AssembledSegment
+from cjm_transcript_review.components.step_renderer import (
+    render_review_step, render_review_toolbar, render_review_footer,
+    render_review_content, render_review_stats,
+)
+from cjm_transcript_review.routes.init import init_review_routers
+from cjm_transcript_review.routes.core import (
+    _load_review_context, _get_assembled_segments, _update_review_state,
+)
 
 
 # =============================================================================
@@ -57,64 +79,242 @@ from cjm_transcript_review.services.graph import GraphService
 class DemoHtmlIds:
     """HTML IDs for demo app layout."""
     CONTAINER = "review-demo-container"
-    CONTENT = "review-demo-content"
+    COLUMN = "review-demo-column"
+    COLUMN_HEADER = "review-demo-column-header"
+    SHARED_TOOLBAR = "review-demo-toolbar"
+    SHARED_CONTROLS = "review-demo-controls"
+    SHARED_FOOTER = "review-demo-footer"
+    MINI_STATS = "review-demo-mini-stats"
+
+
+# =============================================================================
+# Test Data from JSON
+# =============================================================================
+
+# Path to test state JSON file
+TEST_STATE_JSON = Path(__file__).parent / "test_files" / "state_json.json"
+
+
+def load_test_state() -> Dict[str, Any]:
+    """Load test state from JSON file."""
+    with open(TEST_STATE_JSON, "r") as f:
+        return json.load(f)
+
+
+# =============================================================================
+# Demo Init Handler
+# =============================================================================
+
+def create_demo_init_handler(
+    state_store: SQLiteWorkflowStateStore,
+    workflow_id: str,
+    urls: ReviewUrls,
+):
+    """Create init handler that loads test data from JSON and renders the step."""
+
+    def init_handler(request, sess):
+        """Initialize review with test data from JSON file."""
+        session_id = get_session_id(sess)
+
+        # Load test state from JSON
+        test_state = load_test_state()
+
+        # Initialize workflow state with test data
+        workflow_state = state_store.get_state(workflow_id, session_id)
+
+        # Copy step_states from test data
+        workflow_state["step_states"] = test_state.get("step_states", {})
+
+        # Set up review state with defaults (reset focused_index to 0 for demo)
+        if "review" not in workflow_state["step_states"]:
+            workflow_state["step_states"]["review"] = {}
+
+        workflow_state["step_states"]["review"]["focused_index"] = 0
+        workflow_state["step_states"]["review"]["visible_count"] = DEFAULT_VISIBLE_COUNT
+        workflow_state["step_states"]["review"]["is_auto_mode"] = False
+        workflow_state["step_states"]["review"]["card_width"] = DEFAULT_CARD_WIDTH
+
+        state_store.update_state(workflow_id, session_id, workflow_state)
+
+        # Load context and render
+        ctx = _load_review_context(state_store, workflow_id, session_id)
+        assembled = _get_assembled_segments(ctx)
+
+        # Render main content
+        content = render_review_content(
+            assembled=assembled,
+            focused_index=ctx.focused_index,
+            visible_count=ctx.visible_count,
+            card_width=ctx.card_width,
+            urls=urls,
+            media_path=ctx.media_path,
+        )
+
+        # OOB updates for chrome
+        toolbar_oob = Div(
+            render_review_toolbar(ctx.visible_count, ctx.is_auto_mode),
+            id=DemoHtmlIds.SHARED_TOOLBAR,
+            hx_swap_oob="innerHTML"
+        )
+
+        controls_oob = Div(
+            render_width_slider(REVIEW_CS_CONFIG, REVIEW_CS_IDS, card_width=ctx.card_width),
+            id=DemoHtmlIds.SHARED_CONTROLS,
+            hx_swap_oob="innerHTML"
+        )
+
+        footer_oob = Div(
+            render_review_footer(assembled, ctx.focused_index),
+            id=DemoHtmlIds.SHARED_FOOTER,
+            hx_swap_oob="innerHTML"
+        )
+
+        # Mini-stats badge
+        total = len(assembled)
+        total_dur = sum(a.vad_chunk.duration for a in assembled)
+        mini_stats_oob = Span(
+            f"{total} segments \u00b7 {total_dur:.1f}s",
+            id=DemoHtmlIds.MINI_STATS,
+            cls=combine_classes(badge, badge_styles.ghost, badge_sizes.sm),
+            hx_swap_oob="true",
+        )
+
+        return (content, toolbar_oob, controls_oob, footer_oob, mini_stats_oob)
+
+    return init_handler
 
 
 # =============================================================================
 # Demo Page Renderer
 # =============================================================================
 
-def render_demo_page() -> Callable:
+def render_demo_page(
+    urls: ReviewUrls,
+    init_url: str,
+) -> Callable:
     """Create the demo page content factory."""
 
     def page_content():
-        """Render the demo page with placeholder content."""
+        """Render the demo page with card stack column."""
+
+        # Column header
+        header = Div(
+            Span(
+                "Review",
+                cls=combine_classes(
+                    font_size.sm, font_weight.bold,
+                    uppercase, tracking.wide,
+                    text_dui.base_content.opacity(50)
+                )
+            ),
+            Span(
+                "--",
+                id=DemoHtmlIds.MINI_STATS,
+                cls=combine_classes(badge, badge_styles.ghost, badge_sizes.sm)
+            ),
+            id=DemoHtmlIds.COLUMN_HEADER,
+            cls=combine_classes(
+                flex_display, justify.between, items.center,
+                p(3), bg_dui.base_200,
+                border_dui.base_300, border.b()
+            )
+        )
+
+        # Column content (loading state with auto-trigger)
+        content = Div(
+            render_loading_state(REVIEW_CS_IDS, message="Loading review data..."),
+            Div(
+                hx_post=init_url,
+                hx_trigger="load",
+                hx_target=f"#{ReviewHtmlIds.REVIEW_CONTENT}",
+                hx_swap="outerHTML"
+            ),
+            id=ReviewHtmlIds.REVIEW_CONTENT,
+            cls=combine_classes(grow(), overflow.hidden, flex_display, flex_direction.col, p(4))
+        )
+
+        # Column
+        column_cls = combine_classes(
+            w.full, max_w._4xl, m.x.auto,
+            min_h(0),
+            flex_display, flex_direction.col,
+            bg_dui.base_100, border_dui.base_300, border(1),
+            border_radius.box,
+            overflow.hidden,
+            transition.all, duration._200,
+            ring(1), "ring-primary",
+        )
+
+        column = Div(
+            header,
+            content,
+            id=DemoHtmlIds.COLUMN,
+            cls=column_cls
+        )
+
+        # Placeholder chrome
+        toolbar = Div(
+            P("Toolbar will appear here after initialization.",
+              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
+            id=DemoHtmlIds.SHARED_TOOLBAR,
+            cls=str(p(2))
+        )
+
+        controls = Div(
+            P("Width controls will appear here after initialization.",
+              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
+            id=DemoHtmlIds.SHARED_CONTROLS,
+            cls=str(p(2))
+        )
+
+        footer = Div(
+            P("Footer with progress will appear here after initialization.",
+              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
+            id=DemoHtmlIds.SHARED_FOOTER,
+            cls=combine_classes(
+                p(1), bg_dui.base_100,
+                border_dui.base_300, border.t(),
+                flex_display, justify.center, items.center
+            )
+        )
+
         return Div(
             # Header
             Div(
-                H1("Review & Commit Demo",
+                H1("Review Demo",
                    cls=combine_classes(font_size._3xl, font_weight.bold)),
                 P(
-                    "Phase 1: Library imports verified. Future phases will add review UI.",
-                    cls=combine_classes(text_dui.base_content.opacity(70), m.b(4))
+                    "Review assembled segments with timing and source info. Navigate with Up/Down arrows.",
+                    cls=combine_classes(text_dui.base_content.opacity(70), m.b(2))
                 ),
             ),
+
+            # Shared chrome
+            toolbar,
+            controls,
 
             # Content area
             Div(
-                Div(
-                    P("ReviewStepState:", cls=font_weight.semibold),
-                    P(f"  {ReviewStepState.__name__}", cls=text_dui.base_content.opacity(70)),
-                    cls=m.b(2)
-                ),
-                Div(
-                    P("WorkingDocument:", cls=font_weight.semibold),
-                    P(f"  {WorkingDocument.__name__}", cls=text_dui.base_content.opacity(70)),
-                    cls=m.b(2)
-                ),
-                Div(
-                    P("ReviewHtmlIds:", cls=font_weight.semibold),
-                    P(f"  {ReviewHtmlIds.__name__}", cls=text_dui.base_content.opacity(70)),
-                    cls=m.b(2)
-                ),
-                Div(
-                    P("GraphService:", cls=font_weight.semibold),
-                    P(f"  {GraphService.__name__}", cls=text_dui.base_content.opacity(70)),
-                    cls=m.b(2)
-                ),
-                id=DemoHtmlIds.CONTENT,
+                column,
                 cls=combine_classes(
-                    p(4), bg_dui.base_200, border_radius.box,
-                    border_dui.base_300, border(1),
+                    grow(),
+                    min_h(0),
+                    flex_display,
+                    flex_direction.col,
+                    overflow.hidden,
+                    p(1),
                 )
             ),
 
+            # Footer
+            footer,
+
             id=DemoHtmlIds.CONTAINER,
             cls=combine_classes(
-                container, max_w._4xl, m.x.auto,
+                container, max_w._5xl, m.x.auto,
                 h.full,
                 flex_display, flex_direction.col,
-                p(4),
+                p(4), p.x(2), p.b(0)
             )
         )
 
@@ -145,39 +345,54 @@ def main():
     # -------------------------------------------------------------------------
     # Set up state store
     # -------------------------------------------------------------------------
-    import tempfile
-    from pathlib import Path
-
     temp_db = Path(tempfile.gettempdir()) / "cjm_transcript_review_demo_state.db"
     state_store = SQLiteWorkflowStateStore(temp_db)
     workflow_id = "review-demo"
 
     print(f"  State store: {temp_db}")
+    print(f"  Test state JSON: {TEST_STATE_JSON}")
 
     # -------------------------------------------------------------------------
-    # Set up plugin manager
+    # Audio serving route
     # -------------------------------------------------------------------------
-    print("\n[Plugin System]")
-    plugin_manager = PluginManager(scheduler=SafetyScheduler())
+    audio_router = APIRouter(prefix="/audio")
 
-    # Discover plugins from JSON manifests
-    plugin_manager.discover_manifests()
+    @audio_router
+    def audio_src(path: str = None):
+        """Serve audio file for Web Audio API playback."""
+        if path and Path(path).exists():
+            return FileResponse(path, media_type="audio/mpeg")
+        from fasthtml.common import Response
+        return Response(status_code=404, content="Audio file not found")
 
-    # Check for graph plugin
-    graph_plugin_name = "cjm-graph-plugin-sqlite"
-    graph_meta = plugin_manager.get_discovered_meta(graph_plugin_name)
-    if graph_meta:
-        print(f"  {graph_plugin_name}: discovered")
-    else:
-        print(f"  {graph_plugin_name}: not found")
+    audio_src_url = audio_src.to()
 
-    # Create graph service (plugin loaded on-demand)
-    graph_service = GraphService(plugin_manager, graph_plugin_name)
+    # -------------------------------------------------------------------------
+    # Set up review routes
+    # -------------------------------------------------------------------------
+    review_routers, review_urls, review_routes = init_review_routers(
+        state_store=state_store,
+        workflow_id=workflow_id,
+        prefix="/review",
+        audio_src_url=audio_src_url,
+    )
+
+    # Create init handler
+    init_router = APIRouter(prefix="/review")
+
+    init_handler = create_demo_init_handler(state_store, workflow_id, review_urls)
+
+    @init_router
+    def init(request, sess):
+        """Initialize review with test data."""
+        return init_handler(request, sess)
+
+    init_url = init.to()
 
     # -------------------------------------------------------------------------
     # Page routes
     # -------------------------------------------------------------------------
-    page_content = render_demo_page()
+    page_content = render_demo_page(review_urls, init_url)
 
     @router
     def index(request, sess):
@@ -187,7 +402,7 @@ def main():
     # -------------------------------------------------------------------------
     # Register routes
     # -------------------------------------------------------------------------
-    register_routes(app, router)
+    register_routes(app, router, audio_router, init_router, *review_routers)
 
     # Debug output
     print("\n" + "=" * 70)
@@ -215,6 +430,12 @@ if __name__ == "__main__":
     display_host = 'localhost' if host in ['0.0.0.0', '127.0.0.1'] else host
 
     print(f"Server: http://{display_host}:{port}")
+    print()
+    print("Controls:")
+    print("  Arrow Up/Down     - Navigate segments")
+    print("  Ctrl+Up/Down      - Page up/down")
+    print("  Ctrl+Shift+Up     - Jump to first segment")
+    print("  Ctrl+Shift+Down   - Jump to last segment")
     print()
 
     timer = threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{port}"))
