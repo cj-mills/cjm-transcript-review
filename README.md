@@ -56,35 +56,36 @@ graph LR
     utils[utils<br/>utils]
 
     components_helpers --> models
-    components_review_card --> html_ids
     components_review_card --> utils
+    components_review_card --> html_ids
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> components_review_card
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_keyboard_config
     components_step_renderer --> components_callbacks
     components_step_renderer --> html_ids
-    components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_keyboard_config
-    components_step_renderer --> components_audio_controls
     components_step_renderer --> models
     routes_audio --> routes_core
     routes_audio --> models
-    routes_card_stack --> routes_core
-    routes_card_stack --> components_review_card
     routes_card_stack --> components_card_stack_config
+    routes_card_stack --> components_review_card
+    routes_card_stack --> routes_core
     routes_card_stack --> models
-    routes_commit --> routes_core
     routes_commit --> services_graph
+    routes_commit --> utils
+    routes_commit --> routes_core
     routes_commit --> models
     routes_core --> models
     routes_core --> components_review_card
     routes_init --> services_graph
     routes_init --> routes_commit
-    routes_init --> models
-    routes_init --> routes_audio
     routes_init --> routes_core
     routes_init --> routes_card_stack
+    routes_init --> models
+    routes_init --> routes_audio
 ```
 
-*27 cross-module dependencies detected*
+*28 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -369,7 +370,7 @@ async def _handle_commit(
     workflow_id:str,  # The workflow identifier
     session_id:str,  # Session identifier string
     graph_service:GraphService,  # Graph service for committing
-    document_title:Optional[str]=None,  # Override document title (None = use state)
+    document_title:Optional[str]=None,  # Override document title (None = auto-generate)
 ) -> CommitResult:  # Result of the commit operation
     "Handle committing the document to the context graph."
 ```

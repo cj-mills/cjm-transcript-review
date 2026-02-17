@@ -25,6 +25,7 @@ from cjm_plugin_system.core.manager import PluginManager
 
 from ..models import ReviewUrls
 from ..services.graph import GraphService
+from ..utils import generate_document_title
 from cjm_transcript_review.routes.core import (
     WorkflowStateStore, _load_review_context, _get_review_state
 )
@@ -99,7 +100,7 @@ async def _handle_commit(
     workflow_id:str,  # The workflow identifier
     session_id:str,  # Session identifier string
     graph_service:GraphService,  # Graph service for committing
-    document_title:Optional[str]=None,  # Override document title (None = use state)
+    document_title:Optional[str]=None,  # Override document title (None = auto-generate)
 ) -> CommitResult:  # Result of the commit operation
     """Handle committing the document to the context graph."""
     # Load context to get segments and VAD chunks
@@ -128,10 +129,10 @@ async def _handle_commit(
             error="Graph plugin not loaded"
         )
     
-    # Get document title from state if not provided
+    # Get document title from state, or generate from media path
     if document_title is None:
         review_state = _get_review_state(state_store, workflow_id, session_id)
-        document_title = review_state.get("document_title", "Untitled Document")
+        document_title = review_state.get("document_title") or generate_document_title(ctx.media_path)
     
     try:
         # Commit to graph
