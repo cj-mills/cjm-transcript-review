@@ -13,6 +13,7 @@ from fasthtml.common import Div, Span, P
 # DaisyUI components
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles
 from cjm_fasthtml_daisyui.components.data_display.card import card, card_body
+from cjm_fasthtml_daisyui.components.feedback.loading import loading, loading_styles, loading_sizes
 from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui
 
 # Tailwind utilities
@@ -21,6 +22,8 @@ from cjm_fasthtml_tailwind.utilities.sizing import w, min_h
 from cjm_fasthtml_tailwind.utilities.typography import (
     font_size, font_weight, font_family, leading
 )
+from cjm_fasthtml_tailwind.utilities.layout import position, right, top, visibility
+from cjm_fasthtml_tailwind.utilities.transforms import translate
 from cjm_fasthtml_tailwind.utilities.effects import opacity
 from cjm_fasthtml_tailwind.utilities.transitions_and_animation import transition, duration
 from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import (
@@ -107,6 +110,16 @@ def render_review_card(
         cls=combine_classes(font_size.xs, font_family.mono, meta_opacity)
     )
     
+    # Playing indicator — hidden by default, toggled visible by JS during audio playback
+    playing_indicator = Div(
+        Span(cls=combine_classes(loading, loading_styles.bars, loading_sizes.xs, text_dui.secondary)),
+        cls=combine_classes(
+            "review-playing-indicator",
+            position.absolute, right(2), top("1/2"), translate.y("1/2").negative,
+            visibility.invisible,
+        )
+    )
+    
     return Div(
         Div(
             # Left column: Index and metadata
@@ -149,9 +162,14 @@ def render_review_card(
                 flex_display, flex_direction.row, gap(3), items.start
             )
         ),
+        
+        # Absolutely positioned playing indicator
+        playing_indicator,
+        
         id=ReviewHtmlIds.review_card(seg.index),
         cls=combine_classes(
             card, "review-card",
+            position.relative,
             bg_dui.base_100,
             w.full,
             transition.all, duration(150)

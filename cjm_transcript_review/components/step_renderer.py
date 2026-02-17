@@ -104,6 +104,7 @@ def render_review_content(
     card_width:int,  # Card stack width in rem
     urls:ReviewUrls,  # URL bundle for review routes
     media_path:Optional[str]=None,  # Path to audio file for playback
+    kb_system:Optional[Any]=None,  # Rendered keyboard system (None when KB managed externally)
 ) -> Any:  # Main content area
     """Render the review content area with card stack viewport."""
     if DEBUG_REVIEW_RENDER:
@@ -137,18 +138,28 @@ def render_review_content(
     if urls.audio_src and media_path:
         audio_src = f"{urls.audio_src}?path={media_path}"
 
-    # Generate card stack JavaScript callbacks
+    # Generate card stack JavaScript callbacks with audio playback
     callbacks_script = generate_review_callbacks_script(
         ids=REVIEW_CS_IDS,
         button_ids=REVIEW_CS_BTN_IDS,
         config=REVIEW_CS_CONFIG,
         urls=urls.card_stack,
         container_id=ReviewHtmlIds.REVIEW_CONTENT,
+        focus_input_id=REVIEW_CS_IDS.focused_index_input,
+        audio_player_id=ReviewHtmlIds.AUDIO_PLAYER,
     )
+
+    # Keyboard system elements (optional — may be managed at demo app level)
+    kb_elements = ()
+    if kb_system is not None:
+        kb_elements = (kb_system.script, kb_system.hidden_inputs, kb_system.action_buttons)
 
     return Div(
         # Card stack viewport
         viewport,
+
+        # Keyboard navigation system (when provided)
+        *kb_elements,
 
         # Hidden audio element for audition playback
         Audio(
@@ -161,7 +172,7 @@ def render_review_content(
         # Hidden action buttons for JS-triggered card stack nav
         render_card_stack_action_buttons(REVIEW_CS_BTN_IDS, urls.card_stack, REVIEW_CS_IDS),
 
-        # JavaScript callbacks (card stack JS)
+        # JavaScript callbacks (card stack JS + audio playback)
         callbacks_script,
 
         id=ReviewHtmlIds.REVIEW_CONTENT,

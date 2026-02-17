@@ -12,10 +12,11 @@ pip install cjm_transcript_review
 ## Project Structure
 
     nbs/
-    ├── components/ (5)
-    │   ├── callbacks.ipynb          # JavaScript callbacks for the review card stack
+    ├── components/ (6)
+    │   ├── callbacks.ipynb          # Focus change callback and audio playback JavaScript for the review card stack
     │   ├── card_stack_config.ipynb  # Card stack configuration, HTML IDs, and button IDs for the review card stack
     │   ├── helpers.ipynb            # State getters for the review step from InteractionContext
+    │   ├── keyboard_config.ipynb    # Review-specific keyboard building blocks for assembly into a KeyboardManager
     │   ├── review_card.ipynb        # Review card component showing assembled segment with timing and source info
     │   └── step_renderer.ipynb      # Composable render functions for the review card stack step
     ├── routes/ (3)
@@ -28,7 +29,7 @@ pip install cjm_transcript_review
     ├── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
     └── utils.ipynb     # Time formatting and source info display utilities for review cards
 
-Total: 12 notebooks across 3 directories
+Total: 13 notebooks across 3 directories
 
 ## Module Dependencies
 
@@ -37,6 +38,7 @@ graph LR
     components_callbacks[components.callbacks<br/>callbacks]
     components_card_stack_config[components.card_stack_config<br/>card_stack_config]
     components_helpers[components.helpers<br/>helpers]
+    components_keyboard_config[components.keyboard_config<br/>keyboard_config]
     components_review_card[components.review_card<br/>review_card]
     components_step_renderer[components.step_renderer<br/>step_renderer]
     html_ids[html_ids<br/>html_ids]
@@ -50,19 +52,19 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_callbacks
-    components_step_renderer --> components_card_stack_config
     components_step_renderer --> components_review_card
-    components_step_renderer --> html_ids
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> models
+    components_step_renderer --> html_ids
+    components_step_renderer --> components_callbacks
+    routes_card_stack --> components_review_card
     routes_card_stack --> routes_core
     routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_review_card
     routes_card_stack --> models
-    routes_core --> components_review_card
     routes_core --> models
-    routes_init --> routes_core
+    routes_core --> components_review_card
     routes_init --> routes_card_stack
+    routes_init --> routes_core
     routes_init --> models
 ```
 
@@ -78,7 +80,8 @@ Detailed documentation for each module in the project:
 
 ### callbacks (`callbacks.ipynb`)
 
-> JavaScript callbacks for the review card stack
+> Focus change callback and audio playback JavaScript for the review
+> card stack
 
 #### Import
 
@@ -91,14 +94,25 @@ from cjm_transcript_review.components.callbacks import (
 #### Functions
 
 ``` python
+def _generate_review_focus_change_script(
+    focus_input_id:str,  # ID of hidden input for focused segment index
+    audio_player_id:str,  # ID of the hidden audio element (for src URL extraction)
+    card_stack_id:str,  # ID of the review card stack container
+) -> str:  # JavaScript for focus change with audio playback
+    "Generate JS for review focus change handling with Web Audio API playback."
+```
+
+``` python
 def generate_review_callbacks_script(
     ids:CardStackHtmlIds,  # Card stack HTML IDs
     button_ids:CardStackButtonIds,  # Card stack button IDs
     config:CardStackConfig,  # Card stack configuration
     urls:CardStackUrls,  # Card stack URL bundle
     container_id:str,  # ID of the review container (parent of card stack)
+    focus_input_id:str,  # ID of hidden input for focused segment index
+    audio_player_id:str,  # ID of the hidden audio element
 ) -> any:  # Script element with all JavaScript callbacks
-    "Generate JavaScript for review card stack."
+    "Generate JavaScript for review card stack with audio audition."
 ```
 
 ### card_stack (`card_stack.ipynb`)
@@ -493,6 +507,30 @@ def init_review_routers(
     "Initialize and return all review routers with URL bundle."
 ```
 
+### keyboard_config (`keyboard_config.ipynb`)
+
+> Review-specific keyboard building blocks for assembly into a
+> KeyboardManager
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.keyboard_config import (
+    create_review_kb_parts
+)
+```
+
+#### Functions
+
+``` python
+def create_review_kb_parts(
+    ids:CardStackHtmlIds,  # Card stack HTML IDs
+    button_ids:CardStackButtonIds,  # Card stack button IDs for navigation
+    config:CardStackConfig,  # Card stack configuration
+) -> Tuple[FocusZone, tuple, tuple]:  # (zone, actions, modes)
+    "Create review-specific keyboard building blocks."
+```
+
 ### models (`models.ipynb`)
 
 > Review step state and working document model for Phase 3: Review &
@@ -669,6 +707,7 @@ def render_review_content(
     card_width:int,  # Card stack width in rem
     urls:ReviewUrls,  # URL bundle for review routes
     media_path:Optional[str]=None,  # Path to audio file for playback
+    kb_system:Optional[Any]=None,  # Rendered keyboard system (None when KB managed externally)
 ) -> Any:  # Main content area
     "Render the review content area with card stack viewport."
 ```
