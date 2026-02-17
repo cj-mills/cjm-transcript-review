@@ -226,6 +226,8 @@ def create_demo_init_handler(
         workflow_state["step_states"]["review"]["visible_count"] = DEFAULT_VISIBLE_COUNT
         workflow_state["step_states"]["review"]["is_auto_mode"] = False
         workflow_state["step_states"]["review"]["card_width"] = DEFAULT_CARD_WIDTH
+        workflow_state["step_states"]["review"]["playback_speed"] = 1.0
+        workflow_state["step_states"]["review"]["auto_navigate"] = False
 
         state_store.update_state(workflow_id, session_id, workflow_state)
 
@@ -249,7 +251,12 @@ def create_demo_init_handler(
 
         # OOB updates for chrome
         toolbar_oob = Div(
-            render_review_toolbar(ctx.visible_count, ctx.is_auto_mode),
+            render_review_toolbar(
+                ctx.visible_count, ctx.is_auto_mode,
+                playback_speed=ctx.playback_speed,
+                auto_navigate=ctx.auto_navigate,
+                urls=urls,
+            ),
             id=DemoHtmlIds.SHARED_TOOLBAR,
             hx_swap_oob="innerHTML"
         )
@@ -545,10 +552,15 @@ if __name__ == "__main__":
     print()
     print("Controls:")
     print("  Arrow Up/Down     - Navigate segments (auto-plays audio)")
+    print("  Space             - Replay current segment")
     print("  Ctrl+Up/Down      - Page up/down")
     print("  Ctrl+Shift+Up     - Jump to first segment")
     print("  Ctrl+Shift+Down   - Jump to last segment")
     print("  [ / ]             - Adjust viewport width")
+    print()
+    print("Audio Controls (in toolbar):")
+    print("  Speed selector    - Change playback speed (0.5x to 3x)")
+    print("  Auto toggle       - Auto-advance to next segment on completion")
     print()
 
     timer = threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{port}"))

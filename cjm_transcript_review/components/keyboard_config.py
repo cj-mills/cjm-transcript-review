@@ -10,6 +10,7 @@ from typing import Tuple
 
 # Keyboard navigation library
 from cjm_fasthtml_keyboard_navigation.core.focus_zone import FocusZone
+from cjm_fasthtml_keyboard_navigation.core.actions import KeyAction
 
 # Card stack library
 from cjm_fasthtml_card_stack.core.config import CardStackConfig
@@ -39,9 +40,18 @@ def create_review_kb_parts(
         button_ids=button_ids,
         config=config,
     )
+    
+    # Replay action — Space key to replay current segment's audio
+    replay_action = KeyAction(
+        key=" ",  # Space
+        js_callback="replayReviewSegment",
+        zone_ids=(card_zone.id,),
+        description="Replay segment",
+        hint_group="Audio",
+    )
 
-    # Review has only navigation actions (no undo, no split mode)
-    actions = nav_actions
+    # Combine all actions
+    actions = nav_actions + (replay_action,)
     modes = ()  # No sub-modes
 
     return card_zone, actions, modes

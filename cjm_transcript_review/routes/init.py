@@ -15,6 +15,7 @@ from cjm_fasthtml_card_stack.core.models import CardStackUrls
 from ..models import ReviewUrls
 from .core import WorkflowStateStore
 from .card_stack import init_card_stack_router
+from .audio import init_audio_router
 
 # %% ../../nbs/routes/init.ipynb #review-init-assembly
 def init_review_routers(
@@ -32,6 +33,11 @@ def init_review_routers(
         state_store, workflow_id, f"{prefix}/card_stack", urls
     )
     
+    # Initialize audio router
+    audio_router, audio_routes = init_audio_router(
+        state_store, workflow_id, f"{prefix}/audio", urls
+    )
+    
     # Populate the URL bundle using .to() on route functions
     urls.card_stack = CardStackUrls(
         nav_up=card_stack_routes["nav_up"].to(),
@@ -44,7 +50,13 @@ def init_review_routers(
         save_width=card_stack_routes["save_width"].to(),
     )
     urls.audio_src = audio_src_url
+    urls.speed_change = audio_routes["speed_change"].to()
+    urls.toggle_auto_nav = audio_routes["toggle_auto_nav"].to()
+    urls.replay_current = audio_routes["replay_current"].to()
     
-    routers = [card_stack_router]
+    routers = [card_stack_router, audio_router]
     
-    return routers, urls, card_stack_routes
+    # Combine all routes for caller
+    all_routes = {**card_stack_routes, **audio_routes}
+    
+    return routers, urls, all_routes

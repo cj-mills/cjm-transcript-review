@@ -30,6 +30,10 @@ class ReviewStepState(TypedDict, total=False):
     visible_count: int  # Number of visible cards in viewport
     is_auto_mode: bool  # Whether card count is in auto-adjust mode
     card_width: int  # Card stack width in rem units
+    
+    # Audio playback state
+    playback_speed: float  # Current playback speed (default 1.0)
+    auto_navigate: bool  # Whether to auto-navigate on audio completion
 
 # %% ../nbs/models.ipynb #a5hbqgj0c3
 @dataclass
@@ -39,8 +43,11 @@ class ReviewUrls:
     # Card stack navigation and viewport (from cjm-fasthtml-card-stack library)
     card_stack: CardStackUrls = field(default_factory=CardStackUrls)
     
-    # Audio controls (Phase 3)
+    # Audio controls (Phase 4)
     audio_src: str = ""  # Audio source route
+    speed_change: str = ""  # Playback speed change handler
+    toggle_auto_nav: str = ""  # Auto-navigate toggle handler
+    replay_current: str = ""  # Replay current segment handler
     
     # Commit (Phase 5)
     commit: str = ""  # Commit handler route

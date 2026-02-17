@@ -12,14 +12,16 @@ pip install cjm_transcript_review
 ## Project Structure
 
     nbs/
-    ├── components/ (6)
+    ├── components/ (7)
+    │   ├── audio_controls.ipynb     # Audio playback controls: speed selector and auto-navigate toggle
     │   ├── callbacks.ipynb          # Focus change callback and audio playback JavaScript for the review card stack
     │   ├── card_stack_config.ipynb  # Card stack configuration, HTML IDs, and button IDs for the review card stack
     │   ├── helpers.ipynb            # State getters for the review step from InteractionContext
     │   ├── keyboard_config.ipynb    # Review-specific keyboard building blocks for assembly into a KeyboardManager
     │   ├── review_card.ipynb        # Review card component showing assembled segment with timing and source info
     │   └── step_renderer.ipynb      # Composable render functions for the review card stack step
-    ├── routes/ (3)
+    ├── routes/ (4)
+    │   ├── audio.ipynb       # Route handlers for audio playback controls
     │   ├── card_stack.ipynb  # Card stack UI operations — navigation, viewport, and response builders
     │   ├── core.ipynb        # Review step state management helpers
     │   └── init.ipynb        # Router assembly for Phase 3 review routes
@@ -29,12 +31,13 @@ pip install cjm_transcript_review
     ├── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit
     └── utils.ipynb     # Time formatting and source info display utilities for review cards
 
-Total: 13 notebooks across 3 directories
+Total: 15 notebooks across 3 directories
 
 ## Module Dependencies
 
 ``` mermaid
 graph LR
+    components_audio_controls[components.audio_controls<br/>audio_controls]
     components_callbacks[components.callbacks<br/>callbacks]
     components_card_stack_config[components.card_stack_config<br/>card_stack_config]
     components_helpers[components.helpers<br/>helpers]
@@ -43,6 +46,7 @@ graph LR
     components_step_renderer[components.step_renderer<br/>step_renderer]
     html_ids[html_ids<br/>html_ids]
     models[models<br/>models]
+    routes_audio[routes.audio<br/>audio]
     routes_card_stack[routes.card_stack<br/>card_stack]
     routes_core[routes.core<br/>core]
     routes_init[routes.init<br/>init]
@@ -52,23 +56,27 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_review_card
     components_step_renderer --> components_card_stack_config
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_review_card
     components_step_renderer --> models
     components_step_renderer --> html_ids
-    components_step_renderer --> components_callbacks
-    routes_card_stack --> components_review_card
+    routes_audio --> routes_core
+    routes_audio --> models
     routes_card_stack --> routes_core
     routes_card_stack --> components_card_stack_config
+    routes_card_stack --> components_review_card
     routes_card_stack --> models
-    routes_core --> models
     routes_core --> components_review_card
-    routes_init --> routes_card_stack
+    routes_core --> models
+    routes_init --> routes_audio
     routes_init --> routes_core
     routes_init --> models
+    routes_init --> routes_card_stack
 ```
 
-*17 cross-module dependencies detected*
+*21 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -77,6 +85,114 @@ No CLI commands found in this project.
 ## Module Overview
 
 Detailed documentation for each module in the project:
+
+### audio (`audio.ipynb`)
+
+> Route handlers for audio playback controls
+
+#### Import
+
+``` python
+from cjm_transcript_review.routes.audio import (
+    DEBUG_AUDIO_ROUTES,
+    init_audio_router
+)
+```
+
+#### Functions
+
+``` python
+def _generate_speed_change_js(
+    speed:float  # New playback speed
+) -> str:  # JavaScript to update playback rate
+    "Generate JS to update Web Audio API playback rate."
+```
+
+``` python
+def _generate_auto_nav_js(
+    enabled:bool  # Whether auto-navigate is enabled
+) -> str:  # JavaScript to update auto-navigate flag
+    "Generate JS to update auto-navigate client-side flag."
+```
+
+``` python
+def _generate_replay_js() -> str:  # JavaScript to replay current segment
+    "Generate JS to replay the current segment's audio."
+```
+
+``` python
+def init_audio_router(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    prefix:str,  # Base prefix for audio routes
+    urls:ReviewUrls,  # URL bundle to populate
+) -> Tuple[APIRouter, Dict[str, Callable]]:  # (router, routes dict)
+    "Initialize audio control routes."
+```
+
+#### Variables
+
+``` python
+DEBUG_AUDIO_ROUTES = False
+```
+
+### audio_controls (`audio_controls.ipynb`)
+
+> Audio playback controls: speed selector and auto-navigate toggle
+
+#### Import
+
+``` python
+from cjm_transcript_review.components.audio_controls import (
+    PLAYBACK_SPEEDS,
+    AudioControlIds,
+    render_speed_selector,
+    render_auto_navigate_toggle,
+    render_audio_controls
+)
+```
+
+#### Functions
+
+``` python
+def render_speed_selector(
+    current_speed:float=1.0,  # Current playback speed
+    change_url:str="",  # URL to POST speed changes to
+) -> Any:  # Speed selector component
+    "Render playback speed selector dropdown."
+```
+
+``` python
+def render_auto_navigate_toggle(
+    enabled:bool=False,  # Whether auto-navigate is enabled
+    toggle_url:str="",  # URL to POST toggle changes to
+) -> Any:  # Auto-navigate toggle component
+    "Render auto-navigate toggle switch."
+```
+
+``` python
+def render_audio_controls(
+    current_speed:float=1.0,  # Current playback speed
+    auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    speed_url:str="",  # URL for speed changes
+    auto_nav_url:str="",  # URL for auto-navigate toggle
+    oob:bool=False,  # Whether to render as OOB swap
+) -> Any:  # Combined audio controls component
+    "Render combined audio controls (speed selector + auto-navigate toggle)."
+```
+
+#### Classes
+
+``` python
+class AudioControlIds:
+    "HTML ID constants for audio control elements."
+```
+
+#### Variables
+
+``` python
+PLAYBACK_SPEEDS: List[tuple]
+```
 
 ### callbacks (`callbacks.ipynb`)
 
@@ -98,6 +214,7 @@ def _generate_review_focus_change_script(
     focus_input_id:str,  # ID of hidden input for focused segment index
     audio_player_id:str,  # ID of the hidden audio element (for src URL extraction)
     card_stack_id:str,  # ID of the review card stack container
+    nav_down_btn_id:str,  # ID of nav_down button for auto-navigate
 ) -> str:  # JavaScript for focus change with audio playback
     "Generate JS for review focus change handling with Web Audio API playback."
 ```
@@ -283,6 +400,8 @@ def _update_review_state(
     card_width:int=None,  # Card stack width in rem (None = don't change)
     document_title:str=None,  # Document title (None = don't change)
     is_validated:bool=None,  # Validation flag (None = don't change)
+    playback_speed:float=None,  # Playback speed (None = don't change)
+    auto_navigate:bool=None,  # Auto-navigate flag (None = don't change)
 ) -> None
     "Update the review step state in the workflow state store."
 ```
@@ -560,6 +679,9 @@ class ReviewUrls:
     
     card_stack: CardStackUrls = field(...)
     audio_src: str = ''  # Audio source route
+    speed_change: str = ''  # Playback speed change handler
+    toggle_auto_nav: str = ''  # Auto-navigate toggle handler
+    replay_current: str = ''  # Replay current segment handler
     commit: str = ''  # Commit handler route
 ```
 
@@ -686,9 +808,12 @@ from cjm_transcript_review.components.step_renderer import (
 def render_review_toolbar(
     visible_count:int=DEFAULT_VISIBLE_COUNT,  # Current visible card count
     is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
+    playback_speed:float=1.0,  # Current playback speed
+    auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    urls:ReviewUrls=None,  # URL bundle for audio control routes
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Toolbar component
-    "Render the review toolbar with card count selector."
+    "Render the review toolbar with audio controls and card count selector."
 ```
 
 ``` python
@@ -727,8 +852,11 @@ def render_review_step(
     visible_count:int=DEFAULT_VISIBLE_COUNT,  # Number of visible cards
     is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
     card_width:int=DEFAULT_CARD_WIDTH,  # Card stack width in rem
+    playback_speed:float=1.0,  # Current playback speed
+    auto_navigate:bool=False,  # Whether auto-navigate is enabled
     urls:ReviewUrls=None,  # URL bundle for review routes
     media_path:Optional[str]=None,  # Path to audio file for playback
+    kb_system:Optional[Any]=None,  # Rendered keyboard system (optional)
 ) -> Any:  # Complete review step component
     "Render the complete review step with toolbar, content, and footer."
 ```

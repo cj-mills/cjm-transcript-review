@@ -17,6 +17,7 @@ def _generate_review_focus_change_script(
     focus_input_id:str,  # ID of hidden input for focused segment index
     audio_player_id:str,  # ID of the hidden audio element (for src URL extraction)
     card_stack_id:str,  # ID of the review card stack container
+    nav_down_btn_id:str,  # ID of nav_down button for auto-navigate
 ) -> str:  # JavaScript for focus change with audio playback
     """Generate JS for review focus change handling with Web Audio API playback."""
     return f"""
@@ -32,9 +33,19 @@ def _generate_review_focus_change_script(
 
         // Pending playback (for when audio is still loading)
         window._reviewPendingPlay = null;
+        
+        // Audio control state (updated by UI controls)
+        window._reviewPlaybackSpeed = window._reviewPlaybackSpeed || 1.0;
+        window._reviewAutoNavigate = window._reviewAutoNavigate || false;
+        
+        // Track current segment for replay
+        window._reviewCurrentSegment = null;
 
         // Debug flag — set window.DEBUG_REVIEW_AUDIO = true in browser console to enable
         // Logs: segment index, start/end times, duration, Web Audio API operations
+        
+        // Note: Pitch changes with speed. True pitch-preserving speed change requires
+        // time-stretching algorithms (e.g., SoundTouchJS) not built into Web Audio API.
 
         // Initialize Web Audio API and load audio buffer
         window.initReviewAudio = async function() {{
@@ -135,9 +146,16 @@ def _generate_review_focus_change_script(
             if (end > window._reviewAudioBuffer.duration) end = window._reviewAudioBuffer.duration;
             if (duration <= 0) return;
             
-            // Create buffer source
+            // Store current segment for replay
+            window._reviewCurrentSegment = {{ start: start, end: end, indicator: indicator }};
+            
+            // Get playback speed
+            var speed = window._reviewPlaybackSpeed || 1.0;
+            
+            // Create buffer source with playback rate
             var source = window._reviewAudioCtx.createBufferSource();
             source.buffer = window._reviewAudioBuffer;
+            source.playbackRate.value = speed;
             source.connect(window._reviewAudioCtx.destination);
             window._reviewCurrentSource = source;
             
@@ -146,10 +164,14 @@ def _generate_review_focus_change_script(
             
             if (window.DEBUG_REVIEW_AUDIO) {{
                 console.log('[REVIEW_AUDIO] Playing segment:', start.toFixed(2) + 's ->', end.toFixed(2) + 's',
-                    '| duration:', duration.toFixed(2) + 's');
+                    '| duration:', duration.toFixed(2) + 's',
+                    '| speed:', speed + 'x');
             }}
             
-            // Hide indicator after duration
+            // Calculate actual playback time accounting for speed
+            var playbackTime = (duration / speed) * 1000;
+            
+            // Hide indicator and handle auto-navigate after playback completes
             window._reviewPlayTimeout = setTimeout(function() {{
                 if (indicator) {{
                     indicator.classList.add('invisible');
@@ -158,7 +180,45 @@ def _generate_review_focus_change_script(
                 if (window.DEBUG_REVIEW_AUDIO) {{
                     console.log('[REVIEW_AUDIO] Playback completed');
                 }}
-            }}, duration * 1000);
+                
+                // Auto-navigate to next segment if enabled
+                if (window._reviewAutoNavigate) {{
+                    var navDownBtn = document.getElementById('{nav_down_btn_id}');
+                    if (navDownBtn) {{
+                        if (window.DEBUG_REVIEW_AUDIO) {{
+                            console.log('[REVIEW_AUDIO] Auto-navigating to next segment');
+                        }}
+                        navDownBtn.click();
+                    }}
+                }}
+            }}, playbackTime);
+        }};
+        
+        // Replay the current segment (called by Space key or replay button)
+        window.replayReviewSegment = function() {{
+            var seg = window._reviewCurrentSegment;
+            if (!seg) {{
+                if (window.DEBUG_REVIEW_AUDIO) {{
+                    console.log('[REVIEW_AUDIO] No current segment to replay');
+                }}
+                return;
+            }}
+            
+            if (window.DEBUG_REVIEW_AUDIO) {{
+                console.log('[REVIEW_AUDIO] Replaying current segment');
+            }}
+            
+            // Force replay by resetting last played index
+            window._reviewLastPlayedIndex = null;
+            
+            // Show indicator
+            if (seg.indicator) {{
+                seg.indicator.classList.remove('invisible');
+                seg.indicator.classList.add('visible');
+            }}
+            
+            // Play the segment
+            window.playReviewSegment(seg.start, seg.end, seg.indicator);
         }};
 
         // Called when card focus changes in the review zone
@@ -260,6 +320,7 @@ def generate_review_callbacks_script(
             focus_input_id=focus_input_id,
             audio_player_id=audio_player_id,
             card_stack_id=ids.card_stack,
+            nav_down_btn_id=button_ids.nav_down,
         ),
     )
 

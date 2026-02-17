@@ -35,6 +35,8 @@ class ReviewContext(NamedTuple):
     visible_count: int  # Number of visible cards in viewport
     is_auto_mode: bool  # Whether card count is in auto-adjust mode
     card_width: int  # Card stack width in rem
+    playback_speed: float  # Current playback speed
+    auto_navigate: bool  # Whether to auto-navigate on audio completion
 
 # %% ../../nbs/routes/core.ipynb #review-core-getters
 def _get_review_state(
@@ -94,6 +96,8 @@ def _load_review_context(
         visible_count=review_state.get("visible_count", DEFAULT_VISIBLE_COUNT),
         is_auto_mode=review_state.get("is_auto_mode", False),
         card_width=review_state.get("card_width", DEFAULT_CARD_WIDTH),
+        playback_speed=review_state.get("playback_speed", 1.0),
+        auto_navigate=review_state.get("auto_navigate", False),
     )
 
 # %% ../../nbs/routes/core.ipynb #review-core-assembled
@@ -117,6 +121,8 @@ def _update_review_state(
     card_width:int=None,  # Card stack width in rem (None = don't change)
     document_title:str=None,  # Document title (None = don't change)
     is_validated:bool=None,  # Validation flag (None = don't change)
+    playback_speed:float=None,  # Playback speed (None = don't change)
+    auto_navigate:bool=None,  # Auto-navigate flag (None = don't change)
 ) -> None:
     """Update the review step state in the workflow state store."""
     workflow_state = state_store.get_state(workflow_id, session_id)
@@ -136,6 +142,10 @@ def _update_review_state(
         review_state["document_title"] = document_title
     if is_validated is not None:
         review_state["is_validated"] = is_validated
+    if playback_speed is not None:
+        review_state["playback_speed"] = playback_speed
+    if auto_navigate is not None:
+        review_state["auto_navigate"] = auto_navigate
     
     step_states["review"] = review_state
     workflow_state["step_states"] = step_states
