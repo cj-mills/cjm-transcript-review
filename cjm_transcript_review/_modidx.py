@@ -150,5 +150,7 @@ d = { 'settings': { 'branch': 'main',
                                                                                                  'cjm_transcript_review/utils.py'),
                                              'cjm_transcript_review.utils.format_time': ( 'utils.html#format_time',
                                                                                           'cjm_transcript_review/utils.py'),
+                                             'cjm_transcript_review.utils.generate_document_title': ( 'utils.html#generate_document_title',
+                                                                                                      'cjm_transcript_review/utils.py'),
                                              'cjm_transcript_review.utils.truncate_id': ( 'utils.html#truncate_id',
                                                                                           'cjm_transcript_review/utils.py')}}}

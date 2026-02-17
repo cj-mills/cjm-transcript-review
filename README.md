@@ -56,32 +56,32 @@ graph LR
     utils[utils<br/>utils]
 
     components_helpers --> models
-    components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_audio_controls
+    components_review_card --> utils
     components_step_renderer --> components_review_card
-    components_step_renderer --> html_ids
-    components_step_renderer --> models
     components_step_renderer --> components_callbacks
+    components_step_renderer --> html_ids
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> components_keyboard_config
-    routes_audio --> models
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> models
     routes_audio --> routes_core
-    routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_review_card
-    routes_card_stack --> models
+    routes_audio --> models
     routes_card_stack --> routes_core
-    routes_commit --> models
-    routes_commit --> services_graph
+    routes_card_stack --> components_review_card
+    routes_card_stack --> components_card_stack_config
+    routes_card_stack --> models
     routes_commit --> routes_core
+    routes_commit --> services_graph
+    routes_commit --> models
     routes_core --> models
     routes_core --> components_review_card
-    routes_init --> models
     routes_init --> services_graph
     routes_init --> routes_commit
+    routes_init --> models
     routes_init --> routes_audio
-    routes_init --> routes_card_stack
     routes_init --> routes_core
+    routes_init --> routes_card_stack
 ```
 
 *27 cross-module dependencies detected*
@@ -974,7 +974,8 @@ from cjm_transcript_review.utils import (
     format_duration,
     truncate_id,
     format_char_range,
-    format_source_info
+    format_source_info,
+    generate_document_title
 )
 ```
 
@@ -1019,4 +1020,12 @@ def format_source_info(
     end_char:Optional[int]=None,  # End character index
 ) -> str:  # Formatted source info string
     "Format source info for display in review cards."
+```
+
+``` python
+def generate_document_title(
+    media_path:Optional[str],  # Path to media file
+    default:str="Untitled Document",  # Fallback title if path is None
+) -> str:  # Clean document title
+    "Generate a document title from a media file path."
 ```
