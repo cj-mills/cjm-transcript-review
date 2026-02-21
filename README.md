@@ -58,34 +58,35 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_review_card
-    components_step_renderer --> components_audio_controls
     components_step_renderer --> components_keyboard_config
+    components_step_renderer --> components_audio_controls
     components_step_renderer --> components_callbacks
-    components_step_renderer --> html_ids
+    components_step_renderer --> components_review_card
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> models
-    routes_audio --> routes_core
+    components_step_renderer --> html_ids
     routes_audio --> models
-    routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_review_card
+    routes_audio --> routes_core
     routes_card_stack --> routes_core
+    routes_card_stack --> components_review_card
+    routes_card_stack --> components_card_stack_config
+    routes_card_stack --> components_step_renderer
     routes_card_stack --> models
     routes_commit --> services_graph
-    routes_commit --> utils
     routes_commit --> routes_core
+    routes_commit --> utils
     routes_commit --> models
-    routes_core --> models
     routes_core --> components_review_card
-    routes_init --> services_graph
-    routes_init --> routes_commit
-    routes_init --> routes_core
+    routes_core --> models
     routes_init --> routes_card_stack
-    routes_init --> models
     routes_init --> routes_audio
+    routes_init --> services_graph
+    routes_init --> models
+    routes_init --> routes_core
+    routes_init --> routes_commit
 ```
 
-*28 cross-module dependencies detected*
+*29 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -114,14 +115,14 @@ from cjm_transcript_review.routes.audio import (
 def _generate_speed_change_js(
     speed:float  # New playback speed
 ) -> str:  # JavaScript to update playback rate
-    "Generate JS to update Web Audio API playback rate."
+    "Generate JS to update Web Audio API playback rate via shared library."
 ```
 
 ``` python
 def _generate_auto_nav_js(
     enabled:bool  # Whether auto-navigate is enabled
 ) -> str:  # JavaScript to update auto-navigate flag
-    "Generate JS to update auto-navigate client-side flag."
+    "Generate JS to update auto-navigate flag via shared library."
 ```
 
 ``` python
@@ -212,21 +213,12 @@ PLAYBACK_SPEEDS: List[tuple]
 
 ``` python
 from cjm_transcript_review.components.callbacks import (
+    REVIEW_AUDIO_CONFIG,
     generate_review_callbacks_script
 )
 ```
 
 #### Functions
-
-``` python
-def _generate_review_focus_change_script(
-    focus_input_id:str,  # ID of hidden input for focused segment index
-    audio_player_id:str,  # ID of the hidden audio element (for src URL extraction)
-    card_stack_id:str,  # ID of the review card stack container
-    nav_down_btn_id:str,  # ID of nav_down button for auto-navigate
-) -> str:  # JavaScript for focus change with audio playback
-    "Generate JS for review focus change handling with Web Audio API playback."
-```
 
 ``` python
 def generate_review_callbacks_script(
@@ -236,9 +228,14 @@ def generate_review_callbacks_script(
     urls:CardStackUrls,  # Card stack URL bundle
     container_id:str,  # ID of the review container (parent of card stack)
     focus_input_id:str,  # ID of hidden input for focused segment index
-    audio_player_id:str,  # ID of the hidden audio element
 ) -> any:  # Script element with all JavaScript callbacks
-    "Generate JavaScript for review card stack with audio audition."
+    "Generate JavaScript for review card stack with Web Audio API audition."
+```
+
+#### Variables
+
+``` python
+REVIEW_AUDIO_CONFIG
 ```
 
 ### card_stack (`card_stack.ipynb`)
@@ -280,7 +277,7 @@ def _handle_review_navigate(
     sess,  # FastHTML session object
     direction:str,  # Navigation direction: "up", "down", "first", "last", "page_up", "page_down"
     urls:ReviewUrls,  # URL bundle for review routes
-):  # OOB slot updates with progress and focus
+):  # OOB slot updates with progress, focus, and source position
     "Navigate to a different segment in the viewport using OOB slot swaps."
 ```
 
@@ -823,17 +820,16 @@ from cjm_transcript_review.components.review_card import (
 def render_review_card(
     assembled:AssembledSegment,  # Assembled segment with text and timing
     card_role:CardRole,  # Role of this card in viewport ("focused" or "context")
+    has_boundary_above:bool=False,  # Audio file boundary exists above this card
+    has_boundary_below:bool=False,  # Audio file boundary exists below this card
 ) -> Any:  # Review card component
     "Render a single review card with text, timing, and source info."
 ```
 
 ``` python
-def create_review_card_renderer() -> Callable:  # Card renderer callback: (item, CardRenderContext) -> FT
-    """Create a card renderer callback for review cards."""
-    def _render(
-        item:Any,  # AssembledSegment instance
-        context:CardRenderContext,  # Render context from card stack library
-    ) -> Any:  # Rendered review card component
+def create_review_card_renderer(
+    audio_file_boundaries:Set[int]=None,  # Indices where audio_file_index changes
+) -> Callable:  # Card renderer callback: (item, CardRenderContext) -> FT
     "Create a card renderer callback for review cards."
 ```
 
@@ -886,6 +882,7 @@ from cjm_transcript_review.components.step_renderer import (
     DEBUG_REVIEW_RENDER,
     render_review_toolbar,
     render_review_stats,
+    render_review_source_position,
     render_review_keyboard_hints,
     render_review_content,
     render_review_footer,
@@ -916,6 +913,15 @@ def render_review_stats(
 ```
 
 ``` python
+def render_review_source_position(
+    assembled:List[AssembledSegment],  # Assembled segments
+    focused_index:int=0,  # Currently focused segment index
+    oob:bool=False,  # Whether to render as OOB swap
+) -> Any:  # Audio file position indicator (empty if single file)
+    "Render audio file position indicator for the focused segment."
+```
+
+``` python
 def render_review_keyboard_hints(
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Collapsible keyboard hints component
@@ -929,7 +935,7 @@ def render_review_content(
     visible_count:int,  # Number of visible cards in viewport
     card_width:int,  # Card stack width in rem
     urls:ReviewUrls,  # URL bundle for review routes
-    media_path:Optional[str]=None,  # Path to audio file for playback
+    audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API
 ) -> Any:  # Main content area
     "Render the review content area with card stack viewport and keyboard system."
 ```
@@ -938,8 +944,8 @@ def render_review_content(
 def render_review_footer(
     assembled:List[AssembledSegment],  # Assembled segments
     focused_index:int,  # Currently focused segment index
-) -> Any:  # Footer content with progress indicator and stats
-    "Render footer content with progress indicator and statistics."
+) -> Any:  # Footer content with progress indicator, source position, and stats
+    "Render footer content with progress indicator, source position, and statistics."
 ```
 
 ``` python
@@ -952,7 +958,7 @@ def render_review_step(
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
     urls:ReviewUrls=None,  # URL bundle for review routes
-    media_path:Optional[str]=None,  # Path to audio file for playback
+    audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API
 ) -> Any:  # Complete review step component
     "Render the complete review step with toolbar, content, and footer."
 ```

@@ -6,7 +6,7 @@
 __all__ = ['AssembledSegment', 'render_review_card', 'create_review_card_renderer']
 
 # %% ../../nbs/components/review_card.ipynb #review-card-imports
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Set
 
 from fasthtml.common import Div, Span, P
 
@@ -14,7 +14,7 @@ from fasthtml.common import Div, Span, P
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles
 from cjm_fasthtml_daisyui.components.data_display.card import card, card_body
 from cjm_fasthtml_daisyui.components.feedback.loading import loading, loading_styles, loading_sizes
-from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui
+from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui, border_dui
 
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
@@ -23,6 +23,7 @@ from cjm_fasthtml_tailwind.utilities.typography import (
     font_size, font_weight, font_family, leading
 )
 from cjm_fasthtml_tailwind.utilities.layout import position, right, top, visibility
+from cjm_fasthtml_tailwind.utilities.borders import border
 from cjm_fasthtml_tailwind.utilities.transforms import translate
 from cjm_fasthtml_tailwind.utilities.effects import opacity
 from cjm_fasthtml_tailwind.utilities.transitions_and_animation import transition, duration
@@ -77,9 +78,12 @@ class AssembledSegment:
 def render_review_card(
     assembled:AssembledSegment,  # Assembled segment with text and timing
     card_role:CardRole,  # Role of this card in viewport ("focused" or "context")
+    has_boundary_above:bool=False,  # Audio file boundary exists above this card
+    has_boundary_below:bool=False,  # Audio file boundary exists below this card
 ) -> Any:  # Review card component
     """Render a single review card with text, timing, and source info."""
     is_focused = card_role == "focused"
+    is_context = card_role == "context"
     seg = assembled.segment
     chunk = assembled.vad_chunk
     
@@ -119,6 +123,14 @@ def render_review_card(
             visibility.invisible,
         )
     )
+    
+    # Boundary borders only on non-focused cards
+    boundary_cls = ""
+    if is_context:
+        if has_boundary_above:
+            boundary_cls = combine_classes(border.t(4), border_dui.neutral)
+        if has_boundary_below:
+            boundary_cls = combine_classes(boundary_cls, border.b(4), border_dui.neutral)
     
     return Div(
         Div(
@@ -172,24 +184,33 @@ def render_review_card(
             position.relative,
             bg_dui.base_100,
             w.full,
-            transition.all, duration(150)
+            transition.all, duration(150),
+            boundary_cls,
         ),
         data_segment_index=str(seg.index),
+        data_audio_file_index=str(chunk.audio_file_index),
         data_start_time=str(chunk.start_time),
         data_end_time=str(chunk.end_time),
         data_card_role=card_role
     )
 
 # %% ../../nbs/components/review_card.ipynb #review-card-factory
-def create_review_card_renderer() -> Callable:  # Card renderer callback: (item, CardRenderContext) -> FT
+def create_review_card_renderer(
+    audio_file_boundaries:Set[int]=None,  # Indices where audio_file_index changes
+) -> Callable:  # Card renderer callback: (item, CardRenderContext) -> FT
     """Create a card renderer callback for review cards."""
+    boundaries = audio_file_boundaries or set()
+
     def _render(
         item:Any,  # AssembledSegment instance
         context:CardRenderContext,  # Render context from card stack library
     ) -> Any:  # Rendered review card component
         """Render a review card for the given item and viewport context."""
+        idx = context.index
         return render_review_card(
             assembled=item,
             card_role=context.card_role,
+            has_boundary_above=(idx in boundaries),
+            has_boundary_below=((idx + 1) in boundaries),
         )
     return _render

@@ -30,7 +30,8 @@ class ReviewContext(NamedTuple):
     """Common review state values loaded by handlers."""
     segments: List[TextSegment]  # Text segments from segmentation step
     vad_chunks: List[VADChunk]  # VAD chunks from alignment step
-    media_path: Optional[str]  # Path to audio file
+    media_path: Optional[str]  # Path to first audio file (backward compat)
+    media_paths: List[str]  # Ordered list of all audio file paths
     focused_index: int  # Currently focused segment index
     visible_count: int  # Number of visible cards in viewport
     is_auto_mode: bool  # Whether card count is in auto-adjust mode
@@ -92,6 +93,7 @@ def _load_review_context(
         segments=segments,
         vad_chunks=vad_chunks,
         media_path=align_state.get("media_path"),
+        media_paths=align_state.get("media_paths", []),
         focused_index=review_state.get("focused_index", 0),
         visible_count=review_state.get("visible_count", DEFAULT_VISIBLE_COUNT),
         is_auto_mode=review_state.get("is_auto_mode", False),

@@ -19,6 +19,8 @@ from cjm_fasthtml_card_stack.routes.handlers import (
 
 from cjm_fasthtml_interactions.core.state_store import get_session_id
 
+from cjm_transcript_vad_align.utils import get_audio_file_boundaries, get_audio_file_count
+
 from ..models import ReviewUrls
 from cjm_transcript_review.components.card_stack_config import (
     REVIEW_CS_CONFIG, REVIEW_CS_IDS,
@@ -30,6 +32,7 @@ from cjm_transcript_review.routes.core import (
     WorkflowStateStore, _load_review_context, _get_review_state,
     _build_card_stack_state, _update_review_state, _get_assembled_segments,
 )
+from ..components.step_renderer import render_review_source_position
 
 # %% ../../nbs/routes/card_stack.ipynb #review-cs-builders
 def _build_slots_oob(
@@ -38,13 +41,15 @@ def _build_slots_oob(
     urls:ReviewUrls,  # URL bundle
 ) -> List[Any]:  # OOB slot elements
     """Build OOB slot updates for the viewport sections."""
+    chunks = [a.vad_chunk for a in assembled]
+    boundaries = get_audio_file_boundaries(chunks)
     return build_slots_response(
         card_items=assembled,
         state=state,
         config=REVIEW_CS_CONFIG,
         ids=REVIEW_CS_IDS,
         urls=urls.card_stack,
-        render_card=create_review_card_renderer(),
+        render_card=create_review_card_renderer(audio_file_boundaries=boundaries),
     )
 
 def _build_nav_response(
@@ -53,13 +58,15 @@ def _build_nav_response(
     urls:ReviewUrls,  # URL bundle
 ) -> Tuple:  # OOB elements (slots + progress + focus)
     """Build OOB response for navigation."""
+    chunks = [a.vad_chunk for a in assembled]
+    boundaries = get_audio_file_boundaries(chunks)
     return build_nav_response(
         card_items=assembled,
         state=state,
         config=REVIEW_CS_CONFIG,
         ids=REVIEW_CS_IDS,
         urls=urls.card_stack,
-        render_card=create_review_card_renderer(),
+        render_card=create_review_card_renderer(audio_file_boundaries=boundaries),
         progress_label="Segment",
         form_input_name="segment_index",
     )
@@ -71,14 +78,16 @@ def _handle_review_navigate(
     sess,  # FastHTML session object
     direction:str,  # Navigation direction: "up", "down", "first", "last", "page_up", "page_down"
     urls:ReviewUrls,  # URL bundle for review routes
-):  # OOB slot updates with progress and focus
+):  # OOB slot updates with progress, focus, and source position
     """Navigate to a different segment in the viewport using OOB slot swaps."""
     session_id = get_session_id(sess)
     ctx = _load_review_context(state_store, workflow_id, session_id)
     assembled = _get_assembled_segments(ctx)
+    chunks = [a.vad_chunk for a in assembled]
+    boundaries = get_audio_file_boundaries(chunks)
     
     state = _build_card_stack_state(ctx)
-    renderer = create_review_card_renderer()
+    renderer = create_review_card_renderer(audio_file_boundaries=boundaries)
     
     result = card_stack_navigate(
         direction=direction,
@@ -93,6 +102,11 @@ def _handle_review_navigate(
     )
     
     _update_review_state(state_store, workflow_id, session_id, focused_index=state.focused_index)
+    
+    # Append source position OOB if multiple audio files
+    if get_audio_file_count(chunks) > 1:
+        source_pos_oob = render_review_source_position(assembled, state.focused_index, oob=True)
+        return (*result, source_pos_oob)
     return result
 
 # %% ../../nbs/routes/card_stack.ipynb #review-cs-viewport
@@ -108,9 +122,11 @@ async def _handle_review_update_viewport(
     session_id = get_session_id(sess)
     ctx = _load_review_context(state_store, workflow_id, session_id)
     assembled = _get_assembled_segments(ctx)
+    chunks = [a.vad_chunk for a in assembled]
+    boundaries = get_audio_file_boundaries(chunks)
     
     state = _build_card_stack_state(ctx)
-    renderer = create_review_card_renderer()
+    renderer = create_review_card_renderer(audio_file_boundaries=boundaries)
     
     result = card_stack_update_viewport(
         visible_count=visible_count,

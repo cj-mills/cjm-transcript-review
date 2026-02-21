@@ -66,8 +66,8 @@ def render_speed_selector(
             "hx_swap": "none",
         }
     
-    # Client-side JS to update playback speed immediately
-    onchange_js = "window._reviewPlaybackSpeed = parseFloat(this.value); if(window.DEBUG_REVIEW_AUDIO) console.log('[REVIEW_AUDIO] Speed changed to:', this.value);"
+    # Client-side JS to update playback speed immediately via web audio library
+    onchange_js = "if(window.setReviewSpeed) window.setReviewSpeed(parseFloat(this.value));"
     
     return Div(
         Span(
@@ -100,8 +100,8 @@ def render_auto_navigate_toggle(
             "hx_swap": "none",
         }
     
-    # Client-side JS to update auto-navigate flag immediately
-    onchange_js = "window._reviewAutoNavigate = this.checked; if(window.DEBUG_REVIEW_AUDIO) console.log('[REVIEW_AUDIO] Auto-navigate changed to:', this.checked);"
+    # Client-side JS to update auto-navigate flag immediately via web audio library
+    onchange_js = "if(window.setReviewAutoNavigate) window.setReviewAutoNavigate(this.checked);"
     
     return Div(
         Label(

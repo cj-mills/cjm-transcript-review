@@ -107,10 +107,46 @@ class DemoHtmlIds:
 TEST_STATE_JSON = Path(__file__).parent / "test_files" / "state_json.json"
 
 
+TEST_AUDIO_PATH = Path(__file__).parent / "test_files" / "short_test_audio.mp3"
+
+
 def load_test_state() -> Dict[str, Any]:
-    """Load test state from JSON file."""
+    """Load test state from JSON and duplicate data for multi-source testing."""
     with open(TEST_STATE_JSON, "r") as f:
-        return json.load(f)
+        state = json.load(f)
+
+    step_states = state.get("step_states", {})
+
+    # Duplicate segments with a second source_id
+    seg_state = step_states.get("segmentation", {})
+    orig_segments = seg_state.get("segments", [])
+    dup_segments = []
+    for s in orig_segments:
+        s2 = dict(s)
+        s2["index"] = s["index"] + len(orig_segments)
+        s2["source_id"] = "demo_source_2"
+        dup_segments.append(s2)
+    seg_state["segments"] = orig_segments + dup_segments
+
+    # Duplicate VAD chunks with audio_file_index=1
+    align_state = step_states.get("alignment", {})
+    orig_chunks = align_state.get("vad_chunks", [])
+    dup_chunks = []
+    for c in orig_chunks:
+        c2 = dict(c)
+        c2["index"] = c["index"] + len(orig_chunks)
+        c2["audio_file_index"] = 1
+        dup_chunks.append(c2)
+    # Set audio_file_index=0 on originals
+    for c in orig_chunks:
+        c["audio_file_index"] = 0
+    align_state["vad_chunks"] = orig_chunks + dup_chunks
+
+    # Add media_paths (same file for both, just to verify multi-buffer)
+    media_path = str(TEST_AUDIO_PATH)
+    align_state["media_paths"] = [media_path, media_path]
+
+    return state
 
 
 # =============================================================================
@@ -154,6 +190,13 @@ def create_demo_init_handler(
         ctx = _load_review_context(state_store, workflow_id, session_id)
         assembled = _get_assembled_segments(ctx)
 
+        # Build audio URLs from media_paths
+        audio_urls = []
+        if urls.audio_src and ctx.media_paths:
+            audio_urls = [f"{urls.audio_src}?path={mp}" for mp in ctx.media_paths]
+        elif urls.audio_src and ctx.media_path:
+            audio_urls = [f"{urls.audio_src}?path={ctx.media_path}"]
+
         # Render main content (keyboard system is managed internally)
         content = render_review_content(
             assembled=assembled,
@@ -161,7 +204,7 @@ def create_demo_init_handler(
             visible_count=ctx.visible_count,
             card_width=ctx.card_width,
             urls=urls,
-            media_path=ctx.media_path,
+            audio_urls=audio_urls,
         )
 
         # OOB updates for chrome

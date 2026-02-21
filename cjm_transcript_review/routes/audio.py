@@ -24,9 +24,9 @@ DEBUG_AUDIO_ROUTES = False
 def _generate_speed_change_js(
     speed:float  # New playback speed
 ) -> str:  # JavaScript to update playback rate
-    """Generate JS to update Web Audio API playback rate."""
+    """Generate JS to update Web Audio API playback rate via shared library."""
     return f"""
-        window._reviewPlaybackSpeed = {speed};
+        if (window.setReviewSpeed) window.setReviewSpeed({speed});
         if (window.DEBUG_REVIEW_AUDIO) {{
             console.log('[REVIEW_AUDIO] Playback speed changed to:', {speed});
         }}
@@ -36,10 +36,10 @@ def _generate_speed_change_js(
 def _generate_auto_nav_js(
     enabled:bool  # Whether auto-navigate is enabled
 ) -> str:  # JavaScript to update auto-navigate flag
-    """Generate JS to update auto-navigate client-side flag."""
+    """Generate JS to update auto-navigate flag via shared library."""
     enabled_str = "true" if enabled else "false"
     return f"""
-        window._reviewAutoNavigate = {enabled_str};
+        if (window.setReviewAutoNavigate) window.setReviewAutoNavigate({enabled_str});
         if (window.DEBUG_REVIEW_AUDIO) {{
             console.log('[REVIEW_AUDIO] Auto-navigate changed to:', {enabled_str});
         }}
