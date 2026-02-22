@@ -56,34 +56,34 @@ graph LR
     utils[utils<br/>utils]
 
     components_helpers --> models
-    components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_keyboard_config
-    components_step_renderer --> components_audio_controls
-    components_step_renderer --> components_callbacks
-    components_step_renderer --> components_review_card
-    components_step_renderer --> components_card_stack_config
+    components_review_card --> utils
     components_step_renderer --> models
     components_step_renderer --> html_ids
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> components_keyboard_config
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_review_card
+    components_step_renderer --> components_card_stack_config
     routes_audio --> models
     routes_audio --> routes_core
     routes_card_stack --> routes_core
+    routes_card_stack --> models
+    routes_card_stack --> components_step_renderer
     routes_card_stack --> components_review_card
     routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_step_renderer
-    routes_card_stack --> models
     routes_commit --> services_graph
+    routes_commit --> models
     routes_commit --> routes_core
     routes_commit --> utils
-    routes_commit --> models
-    routes_core --> components_review_card
     routes_core --> models
-    routes_init --> routes_card_stack
-    routes_init --> routes_audio
-    routes_init --> services_graph
+    routes_core --> components_review_card
     routes_init --> models
-    routes_init --> routes_core
+    routes_init --> routes_audio
     routes_init --> routes_commit
+    routes_init --> services_graph
+    routes_init --> routes_core
+    routes_init --> routes_card_stack
 ```
 
 *29 cross-module dependencies detected*
@@ -482,6 +482,16 @@ def _update_review_state(
 ```
 
 ``` python
+def _handle_update_title(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str,  # Session identifier string
+    document_title:str,  # New document title from form input
+) -> None
+    "Update the document title in review state."
+```
+
+``` python
 def _build_card_stack_state(
     ctx:ReviewContext,  # Loaded review context
 ) -> CardStackState:  # Card stack state for library functions
@@ -769,6 +779,7 @@ class ReviewUrls:
     speed_change: str = ''  # Playback speed change handler
     toggle_auto_nav: str = ''  # Auto-navigate toggle handler
     replay_current: str = ''  # Replay current segment handler
+    update_title: str = ''  # Document title update handler
     commit: str = ''  # Commit handler route
 ```
 
@@ -898,10 +909,11 @@ def render_review_toolbar(
     is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for audio control routes
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Toolbar component
-    "Render the review toolbar with audio controls and card count selector."
+    "Render the review toolbar with title input, audio controls, and card count selector."
 ```
 
 ``` python
@@ -957,6 +969,7 @@ def render_review_step(
     card_width:int=DEFAULT_CARD_WIDTH,  # Card stack width in rem
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for review routes
     audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API
 ) -> Any:  # Complete review step component

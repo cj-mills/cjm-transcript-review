@@ -49,6 +49,9 @@ class ReviewUrls:
     toggle_auto_nav: str = ""  # Auto-navigate toggle handler
     replay_current: str = ""  # Replay current segment handler
     
+    # Document metadata
+    update_title: str = ""  # Document title update handler
+    
     # Commit (Phase 5)
     commit: str = ""  # Commit handler route
 

@@ -11,12 +11,15 @@ from typing import List, Dict, Callable, Tuple, Optional
 from fasthtml.common import APIRouter
 
 from cjm_fasthtml_card_stack.core.models import CardStackUrls
+from cjm_fasthtml_interactions.core.state_store import get_session_id
 
 from cjm_plugin_system.core.manager import PluginManager
 
 from ..models import ReviewUrls
 from ..services.graph import GraphService
-from .core import WorkflowStateStore
+from cjm_transcript_review.routes.core import (
+    WorkflowStateStore, _handle_update_title
+)
 from .card_stack import init_card_stack_router
 from .audio import init_audio_router
 from .commit import init_commit_router
@@ -44,6 +47,15 @@ def init_review_routers(
         state_store, workflow_id, f"{prefix}/audio", urls
     )
     
+    # Initialize title update route
+    title_router = APIRouter(prefix=prefix)
+    
+    @title_router.post("/update_title")
+    def update_title(request, sess, document_title: str):
+        """Update the document title in review state."""
+        session_id = get_session_id(sess)
+        _handle_update_title(state_store, workflow_id, session_id, document_title)
+    
     # Populate the URL bundle using .to() on route functions
     urls.card_stack = CardStackUrls(
         nav_up=card_stack_routes["nav_up"].to(),
@@ -59,9 +71,10 @@ def init_review_routers(
     urls.speed_change = audio_routes["speed_change"].to()
     urls.toggle_auto_nav = audio_routes["toggle_auto_nav"].to()
     urls.replay_current = audio_routes["replay_current"].to()
+    urls.update_title = update_title.to()
     
-    routers = [card_stack_router, audio_router]
-    all_routes = {**card_stack_routes, **audio_routes}
+    routers = [card_stack_router, audio_router, title_router]
+    all_routes = {**card_stack_routes, **audio_routes, "update_title": update_title}
     
     # Initialize commit router (optional - only if graph_service provided)
     if graph_service is not None:

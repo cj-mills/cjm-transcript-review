@@ -9,13 +9,14 @@ __all__ = ['DEBUG_REVIEW_RENDER', 'render_review_toolbar', 'render_review_stats'
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-imports
 from typing import Any, List, Optional
 
-from fasthtml.common import Div, Span, Details, Summary
+from fasthtml.common import Div, Span, Input, Label, Details, Summary
 
 # DaisyUI components
 from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui, bg_dui
 from cjm_fasthtml_daisyui.components.data_display.collapse import (
     collapse, collapse_title, collapse_content, collapse_modifiers
 )
+from cjm_fasthtml_daisyui.components.data_input.text_input import text_input, text_input_sizes
 
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
@@ -75,23 +76,41 @@ def render_review_toolbar(
     is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for audio control routes
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Toolbar component
-    """Render the review toolbar with audio controls and card count selector."""
+    """Render the review toolbar with title input, audio controls, and card count selector."""
     urls = urls or ReviewUrls()
     
     return Div(
-        # Left: Audio controls (speed + auto-navigate)
+        # Left: Document title input
+        Div(
+            Label(
+                "Title:",
+                cls=combine_classes(font_size.sm, text_dui.base_content.opacity(70), m.r(2))
+            ),
+            Input(
+                type="text",
+                name="document_title",
+                value=document_title,
+                id=ReviewHtmlIds.DOCUMENT_TITLE,
+                cls=combine_classes(text_input, text_input_sizes.sm, grow()),
+                placeholder="Document title...",
+                hx_post=urls.update_title,
+                hx_trigger="change",
+                hx_swap="none",
+            ),
+            cls=combine_classes(flex_display, items.center, grow())
+        ),
+        
+        # Center: Audio controls (speed + auto-navigate)
         render_audio_controls(
             current_speed=playback_speed,
             auto_navigate=auto_navigate,
             speed_url=urls.speed_change,
             auto_nav_url=urls.toggle_auto_nav,
         ),
-        
-        # Spacer
-        Div(cls=str(grow())),
 
         # Right: Card count selector
         Div(
@@ -321,6 +340,7 @@ def render_review_step(
     card_width:int=DEFAULT_CARD_WIDTH,  # Card stack width in rem
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
+    document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for review routes
     audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API
 ) -> Any:  # Complete review step component
@@ -331,11 +351,12 @@ def render_review_step(
         # Keyboard hints (collapsible)
         render_review_keyboard_hints(),
         
-        # Toolbar with audio controls
+        # Toolbar with title input and audio controls
         render_review_toolbar(
             visible_count, is_auto_mode,
             playback_speed=playback_speed,
             auto_navigate=auto_navigate,
+            document_title=document_title,
             urls=urls,
         ),
         

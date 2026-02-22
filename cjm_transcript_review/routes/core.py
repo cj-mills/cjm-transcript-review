@@ -157,6 +157,18 @@ def _update_review_state(
     
     state_store.update_state(workflow_id, session_id, workflow_state)
 
+# %% ../../nbs/routes/core.ipynb #egg8wvd5s0p
+def _handle_update_title(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    session_id:str,  # Session identifier string
+    document_title:str,  # New document title from form input
+) -> None:
+    """Update the document title in review state."""
+    title = document_title.strip()
+    if title:
+        _update_review_state(state_store, workflow_id, session_id, document_title=title)
+
 # %% ../../nbs/routes/core.ipynb #review-core-card-stack
 def _build_card_stack_state(
     ctx:ReviewContext,  # Loaded review context

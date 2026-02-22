@@ -36,6 +36,7 @@ class ReviewHtmlIds:
     REVIEW_STATS = "sd-review-stats"
     REVIEW_FOOTER = "sd-review-footer"
     SOURCE_POSITION = "sd-review-source-position"  # Audio file position indicator
+    DOCUMENT_TITLE = "sd-review-document-title"  # Document title input
     
     # Keyboard
     KEYBOARD_HINTS = "sd-review-keyboard-hints"
