@@ -34,7 +34,7 @@ from cjm_fasthtml_keyboard_navigation.components.hints import render_keyboard_hi
 
 # Card stack library
 from cjm_fasthtml_card_stack.components.viewport import render_viewport
-from cjm_fasthtml_card_stack.components.controls import render_card_count_select
+from cjm_fasthtml_card_stack.components.controls import render_card_count_select, render_width_slider
 from cjm_fasthtml_card_stack.components.progress import render_progress_indicator
 from cjm_fasthtml_card_stack.core.models import CardStackState
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
@@ -359,6 +359,9 @@ def render_review_step(
             document_title=document_title,
             urls=urls,
         ),
+        
+        # Width slider
+        render_width_slider(REVIEW_CS_CONFIG, REVIEW_CS_IDS, card_width=card_width),
         
         # Main content area (includes keyboard system internally)
         render_review_content(
