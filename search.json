@@ -1,0 +1,757 @@
+[
+  {
+    "objectID": "html_ids.html",
+    "href": "html_ids.html",
+    "title": "html_ids",
+    "section": "",
+    "text": "source\n\nReviewHtmlIds\n\ndef ReviewHtmlIds(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nHTML ID constants for Phase 3: Review & Commit.",
+    "crumbs": [
+      "html_ids"
+    ]
+  },
+  {
+    "objectID": "routes/commit.html",
+    "href": "routes/commit.html",
+    "title": "commit",
+    "section": "",
+    "text": "Data structure for commit operation results.\n\nsource\n\n\n\ndef CommitResult(\n    success:bool, document_id:Optional=None, segment_count:int=0, edge_count:int=0, error:Optional=None\n)-&gt;None:\n\nResult of a commit operation.",
+    "crumbs": [
+      "routes",
+      "commit"
+    ]
+  },
+  {
+    "objectID": "routes/commit.html#commit-result",
+    "href": "routes/commit.html#commit-result",
+    "title": "commit",
+    "section": "",
+    "text": "Data structure for commit operation results.\n\nsource\n\n\n\ndef CommitResult(\n    success:bool, document_id:Optional=None, segment_count:int=0, edge_count:int=0, error:Optional=None\n)-&gt;None:\n\nResult of a commit operation.",
+    "crumbs": [
+      "routes",
+      "commit"
+    ]
+  },
+  {
+    "objectID": "routes/commit.html#alert-rendering",
+    "href": "routes/commit.html#alert-rendering",
+    "title": "commit",
+    "section": "Alert Rendering",
+    "text": "Alert Rendering\nRenders success/error alerts with auto-dismiss functionality.",
+    "crumbs": [
+      "routes",
+      "commit"
+    ]
+  },
+  {
+    "objectID": "routes/commit.html#commit-handler",
+    "href": "routes/commit.html#commit-handler",
+    "title": "commit",
+    "section": "Commit Handler",
+    "text": "Commit Handler\nCore handler that performs the commit operation.",
+    "crumbs": [
+      "routes",
+      "commit"
+    ]
+  },
+  {
+    "objectID": "routes/commit.html#router-initialization",
+    "href": "routes/commit.html#router-initialization",
+    "title": "commit",
+    "section": "Router Initialization",
+    "text": "Router Initialization\nCreates commit route and returns the router with route function.\n\nsource\n\ninit_commit_router\n\ndef init_commit_router(\n    state_store:SQLiteWorkflowStateStore, # The workflow state store\n    workflow_id:str, # The workflow identifier\n    prefix:str, # Base prefix for commit route\n    graph_service:GraphService, # Graph service for committing\n    urls:ReviewUrls, # URL bundle to populate\n    alert_container_id:str='commit-alert-container', # ID of container for alert OOB swap\n)-&gt;Tuple: # (router, routes dict)\n\nInitialize commit route.",
+    "crumbs": [
+      "routes",
+      "commit"
+    ]
+  },
+  {
+    "objectID": "routes/audio.html",
+    "href": "routes/audio.html",
+    "title": "audio",
+    "section": "",
+    "text": "Updates playback speed state and returns JavaScript to change the Web Audio API playback rate.",
+    "crumbs": [
+      "routes",
+      "audio"
+    ]
+  },
+  {
+    "objectID": "routes/audio.html#speed-change-handler",
+    "href": "routes/audio.html#speed-change-handler",
+    "title": "audio",
+    "section": "",
+    "text": "Updates playback speed state and returns JavaScript to change the Web Audio API playback rate.",
+    "crumbs": [
+      "routes",
+      "audio"
+    ]
+  },
+  {
+    "objectID": "routes/audio.html#auto-navigate-toggle-handler",
+    "href": "routes/audio.html#auto-navigate-toggle-handler",
+    "title": "audio",
+    "section": "Auto-Navigate Toggle Handler",
+    "text": "Auto-Navigate Toggle Handler\nUpdates auto-navigate state and returns JavaScript to update the client-side flag.",
+    "crumbs": [
+      "routes",
+      "audio"
+    ]
+  },
+  {
+    "objectID": "routes/audio.html#replay-current-handler",
+    "href": "routes/audio.html#replay-current-handler",
+    "title": "audio",
+    "section": "Replay Current Handler",
+    "text": "Replay Current Handler\nReturns JavaScript to replay the current segment’s audio. No state change needed.",
+    "crumbs": [
+      "routes",
+      "audio"
+    ]
+  },
+  {
+    "objectID": "routes/audio.html#router-initialization",
+    "href": "routes/audio.html#router-initialization",
+    "title": "audio",
+    "section": "Router Initialization",
+    "text": "Router Initialization\nCreates audio control routes and returns the router with route functions.\n\nsource\n\ninit_audio_router\n\ndef init_audio_router(\n    state_store:SQLiteWorkflowStateStore, # The workflow state store\n    workflow_id:str, # The workflow identifier\n    prefix:str, # Base prefix for audio routes\n    urls:ReviewUrls, # URL bundle to populate\n)-&gt;Tuple: # (router, routes dict)\n\nInitialize audio control routes.",
+    "crumbs": [
+      "routes",
+      "audio"
+    ]
+  },
+  {
+    "objectID": "routes/core.html",
+    "href": "routes/core.html",
+    "title": "core",
+    "section": "",
+    "text": "NamedTuple containing commonly-needed review state values.\n\nsource\n\n\n\ndef ReviewContext(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nCommon review state values loaded by handlers.",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#review-context",
+    "href": "routes/core.html#review-context",
+    "title": "core",
+    "section": "",
+    "text": "NamedTuple containing commonly-needed review state values.\n\nsource\n\n\n\ndef ReviewContext(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nCommon review state values loaded by handlers.",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#state-getters",
+    "href": "routes/core.html#state-getters",
+    "title": "core",
+    "section": "State Getters",
+    "text": "State Getters",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#load-context",
+    "href": "routes/core.html#load-context",
+    "title": "core",
+    "section": "Load Context",
+    "text": "Load Context\nLoads all review state in a single call, including cross-step data.",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#assembled-segments",
+    "href": "routes/core.html#assembled-segments",
+    "title": "core",
+    "section": "Assembled Segments",
+    "text": "Assembled Segments\nPairs segments with VAD chunks for display.",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#state-updates",
+    "href": "routes/core.html#state-updates",
+    "title": "core",
+    "section": "State Updates",
+    "text": "State Updates",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#title-update-handler",
+    "href": "routes/core.html#title-update-handler",
+    "title": "core",
+    "section": "Title Update Handler",
+    "text": "Title Update Handler",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "routes/core.html#card-stack-state",
+    "href": "routes/core.html#card-stack-state",
+    "title": "core",
+    "section": "Card Stack State",
+    "text": "Card Stack State",
+    "crumbs": [
+      "routes",
+      "core"
+    ]
+  },
+  {
+    "objectID": "components/callbacks.html",
+    "href": "components/callbacks.html",
+    "title": "callbacks",
+    "section": "",
+    "text": "Web Audio API manager configuration for the review instance (all features enabled).",
+    "crumbs": [
+      "components",
+      "callbacks"
+    ]
+  },
+  {
+    "objectID": "components/callbacks.html#audio-config",
+    "href": "components/callbacks.html#audio-config",
+    "title": "callbacks",
+    "section": "",
+    "text": "Web Audio API manager configuration for the review instance (all features enabled).",
+    "crumbs": [
+      "components",
+      "callbacks"
+    ]
+  },
+  {
+    "objectID": "components/callbacks.html#combined-callbacks-script",
+    "href": "components/callbacks.html#combined-callbacks-script",
+    "title": "callbacks",
+    "section": "Combined Callbacks Script",
+    "text": "Combined Callbacks Script\nWraps the card stack library’s JS generator with Web Audio API focus change callback from cjm-fasthtml-web-audio.\n\nsource\n\ngenerate_review_callbacks_script\n\ndef generate_review_callbacks_script(\n    ids:CardStackHtmlIds, # Card stack HTML IDs\n    button_ids:CardStackButtonIds, # Card stack button IDs\n    config:CardStackConfig, # Card stack configuration\n    urls:CardStackUrls, # Card stack URL bundle\n    container_id:str, # ID of the review container (parent of card stack)\n    focus_input_id:str, # ID of hidden input for focused segment index\n)-&gt;any: # Script element with all JavaScript callbacks\n\nGenerate JavaScript for review card stack with Web Audio API audition.",
+    "crumbs": [
+      "components",
+      "callbacks"
+    ]
+  },
+  {
+    "objectID": "components/review_card.html",
+    "href": "components/review_card.html",
+    "title": "review_card",
+    "section": "",
+    "text": "Pairs a TextSegment with its corresponding VADChunk for display.\n\nsource\n\n\n\ndef AssembledSegment(\n    segment:TextSegment, vad_chunk:VADChunk\n)-&gt;None:\n\nA segment paired with its corresponding VAD chunk for review.",
+    "crumbs": [
+      "components",
+      "review_card"
+    ]
+  },
+  {
+    "objectID": "components/review_card.html#assembledsegment",
+    "href": "components/review_card.html#assembledsegment",
+    "title": "review_card",
+    "section": "",
+    "text": "Pairs a TextSegment with its corresponding VADChunk for display.\n\nsource\n\n\n\ndef AssembledSegment(\n    segment:TextSegment, vad_chunk:VADChunk\n)-&gt;None:\n\nA segment paired with its corresponding VAD chunk for review.",
+    "crumbs": [
+      "components",
+      "review_card"
+    ]
+  },
+  {
+    "objectID": "components/review_card.html#card-renderer",
+    "href": "components/review_card.html#card-renderer",
+    "title": "review_card",
+    "section": "Card Renderer",
+    "text": "Card Renderer\nEach review card shows the assembled segment data: - Index badge - Text content - Time range and duration - Source reference\n\nsource\n\nrender_review_card\n\ndef render_review_card(\n    assembled:AssembledSegment, # Assembled segment with text and timing\n    card_role:Literal, # Role of this card in viewport (\"focused\" or \"context\")\n    has_boundary_above:bool=False, # Audio file boundary exists above this card\n    has_boundary_below:bool=False, # Audio file boundary exists below this card\n)-&gt;Any: # Review card component\n\nRender a single review card with text, timing, and source info.",
+    "crumbs": [
+      "components",
+      "review_card"
+    ]
+  },
+  {
+    "objectID": "components/review_card.html#card-renderer-factory",
+    "href": "components/review_card.html#card-renderer-factory",
+    "title": "review_card",
+    "section": "Card Renderer Factory",
+    "text": "Card Renderer Factory\nCreates a callback compatible with the card stack library’s render_card parameter.\n\nsource\n\ncreate_review_card_renderer\n\ndef create_review_card_renderer(\n    audio_file_boundaries:Set=None, # Indices where audio_file_index changes\n)-&gt;Callable: # Card renderer callback: (item, CardRenderContext) -&gt; FT\n\nCreate a card renderer callback for review cards.",
+    "crumbs": [
+      "components",
+      "review_card"
+    ]
+  },
+  {
+    "objectID": "components/card_stack_config.html",
+    "href": "components/card_stack_config.html",
+    "title": "card_stack_config",
+    "section": "",
+    "text": "The review card stack uses a unique sd-review prefix to match the existing Phase 3 HTML IDs. Cards display text content with timing and source info, using moderate width for readability.",
+    "crumbs": [
+      "components",
+      "card_stack_config"
+    ]
+  },
+  {
+    "objectID": "components/card_stack_config.html#configuration",
+    "href": "components/card_stack_config.html#configuration",
+    "title": "card_stack_config",
+    "section": "",
+    "text": "The review card stack uses a unique sd-review prefix to match the existing Phase 3 HTML IDs. Cards display text content with timing and source info, using moderate width for readability.",
+    "crumbs": [
+      "components",
+      "card_stack_config"
+    ]
+  },
+  {
+    "objectID": "components/audio_controls.html",
+    "href": "components/audio_controls.html",
+    "title": "audio_controls",
+    "section": "",
+    "text": "HTML ID constants for audio control elements.\n\nsource\n\n\n\ndef AudioControlIds(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nHTML ID constants for audio control elements.",
+    "crumbs": [
+      "components",
+      "audio_controls"
+    ]
+  },
+  {
+    "objectID": "components/audio_controls.html#html-ids",
+    "href": "components/audio_controls.html#html-ids",
+    "title": "audio_controls",
+    "section": "",
+    "text": "HTML ID constants for audio control elements.\n\nsource\n\n\n\ndef AudioControlIds(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nHTML ID constants for audio control elements.",
+    "crumbs": [
+      "components",
+      "audio_controls"
+    ]
+  },
+  {
+    "objectID": "components/audio_controls.html#playback-speed-selector",
+    "href": "components/audio_controls.html#playback-speed-selector",
+    "title": "audio_controls",
+    "section": "Playback Speed Selector",
+    "text": "Playback Speed Selector\nDropdown selector for audio playback speed. Speeds from 0.5x to 3x.\n\nsource\n\nrender_speed_selector\n\ndef render_speed_selector(\n    current_speed:float=1.0, # Current playback speed\n    change_url:str='', # URL to POST speed changes to\n)-&gt;Any: # Speed selector component\n\nRender playback speed selector dropdown.",
+    "crumbs": [
+      "components",
+      "audio_controls"
+    ]
+  },
+  {
+    "objectID": "components/audio_controls.html#auto-navigate-toggle",
+    "href": "components/audio_controls.html#auto-navigate-toggle",
+    "title": "audio_controls",
+    "section": "Auto-Navigate Toggle",
+    "text": "Auto-Navigate Toggle\nToggle switch to enable automatic navigation to next segment when audio playback completes.\n\nsource\n\nrender_auto_navigate_toggle\n\ndef render_auto_navigate_toggle(\n    enabled:bool=False, # Whether auto-navigate is enabled\n    toggle_url:str='', # URL to POST toggle changes to\n)-&gt;Any: # Auto-navigate toggle component\n\nRender auto-navigate toggle switch.",
+    "crumbs": [
+      "components",
+      "audio_controls"
+    ]
+  },
+  {
+    "objectID": "components/audio_controls.html#combined-audio-controls",
+    "href": "components/audio_controls.html#combined-audio-controls",
+    "title": "audio_controls",
+    "section": "Combined Audio Controls",
+    "text": "Combined Audio Controls\nRenders both speed selector and auto-navigate toggle in a single component.\n\nsource\n\nrender_audio_controls\n\ndef render_audio_controls(\n    current_speed:float=1.0, # Current playback speed\n    auto_navigate:bool=False, # Whether auto-navigate is enabled\n    speed_url:str='', # URL for speed changes\n    auto_nav_url:str='', # URL for auto-navigate toggle\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Combined audio controls component\n\nRender combined audio controls (speed selector + auto-navigate toggle).",
+    "crumbs": [
+      "components",
+      "audio_controls"
+    ]
+  },
+  {
+    "objectID": "models.html",
+    "href": "models.html",
+    "title": "models",
+    "section": "",
+    "text": "TypedDict for Phase 3: Review & Commit step state.\n\nsource\n\n\n\ndef ReviewStepState(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nState for Phase 3: Review & Commit.",
+    "crumbs": [
+      "models"
+    ]
+  },
+  {
+    "objectID": "models.html#reviewstepstate",
+    "href": "models.html#reviewstepstate",
+    "title": "models",
+    "section": "",
+    "text": "TypedDict for Phase 3: Review & Commit step state.\n\nsource\n\n\n\ndef ReviewStepState(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nState for Phase 3: Review & Commit.",
+    "crumbs": [
+      "models"
+    ]
+  },
+  {
+    "objectID": "models.html#reviewurls",
+    "href": "models.html#reviewurls",
+    "title": "models",
+    "section": "ReviewUrls",
+    "text": "ReviewUrls\nURL bundle for Phase 3 review route handlers and renderers.\n\nsource\n\nReviewUrls\n\ndef ReviewUrls(\n    card_stack:CardStackUrls=&lt;factory&gt;, audio_src:str='', speed_change:str='', toggle_auto_nav:str='',\n    replay_current:str='', update_title:str='', commit:str=''\n)-&gt;None:\n\nURL bundle for Phase 3 review route handlers and renderers.",
+    "crumbs": [
+      "models"
+    ]
+  },
+  {
+    "objectID": "models.html#workingdocument",
+    "href": "models.html#workingdocument",
+    "title": "models",
+    "section": "WorkingDocument",
+    "text": "WorkingDocument\nContainer for all working data during the decomposition workflow.\n\nsource\n\nWorkingDocument\n\ndef WorkingDocument(\n    title:str='', media_type:str='audio', media_path:Optional=None, source_blocks:List=&lt;factory&gt;,\n    combined_text:str='', segments:List=&lt;factory&gt;, vad_chunks:List=&lt;factory&gt;, audio_duration:Optional=None\n)-&gt;None:\n\nContainer for workflow state during structure decomposition.",
+    "crumbs": [
+      "models"
+    ]
+  },
+  {
+    "objectID": "services/graph.html",
+    "href": "services/graph.html",
+    "title": "graph",
+    "section": "",
+    "text": "This service wraps the SQLite graph plugin to provide storage for the decomposed document structure. It converts TextSegment objects into graph nodes and edges, then commits them to the context graph.\n\nsource\n\n\n\ndef GraphService(\n    plugin_manager:PluginManager, # Plugin manager for accessing graph plugin\n    plugin_name:str='cjm-graph-plugin-sqlite', # Name of the graph plugin\n):\n\nService for committing structure to context graph.",
+    "crumbs": [
+      "services",
+      "graph"
+    ]
+  },
+  {
+    "objectID": "services/graph.html#graphservice",
+    "href": "services/graph.html#graphservice",
+    "title": "graph",
+    "section": "",
+    "text": "This service wraps the SQLite graph plugin to provide storage for the decomposed document structure. It converts TextSegment objects into graph nodes and edges, then commits them to the context graph.\n\nsource\n\n\n\ndef GraphService(\n    plugin_manager:PluginManager, # Plugin manager for accessing graph plugin\n    plugin_name:str='cjm-graph-plugin-sqlite', # Name of the graph plugin\n):\n\nService for committing structure to context graph.",
+    "crumbs": [
+      "services",
+      "graph"
+    ]
+  },
+  {
+    "objectID": "services/graph.html#tests",
+    "href": "services/graph.html#tests",
+    "title": "graph",
+    "section": "Tests",
+    "text": "Tests\nThe following cells demonstrate the GraphService with the SQLite Graph plugin.\n\n# Test GraphService with SQLite Graph plugin\nfrom pathlib import Path\nfrom cjm_plugin_system.core.manager import PluginManager\n\n# Calculate project root from notebook location (nbs/services/ -&gt; project root)\nproject_root = Path.cwd().parent.parent\nmanifests_dir = project_root / \".cjm\" / \"manifests\"\n\n# Create plugin manager with explicit search path\nmanager = PluginManager(search_paths=[manifests_dir])\nmanager.discover_manifests()\n\nprint(f\"Discovered {len(manager.discovered)} plugins from {manifests_dir}\")\n\n# Check if Graph plugin is available\ngraph_meta = manager.get_discovered_meta(\"cjm-graph-plugin-sqlite\")\nif graph_meta:\n    print(f\"Found plugin: {graph_meta.name} v{graph_meta.version}\")\nelse:\n    print(\"SQLite Graph plugin not found - install via plugins.yaml\")\n\n[PluginManager] Discovered manifest: cjm-graph-plugin-sqlite from /mnt/SN850X_8TB_EXT4/Projects/GitHub/cj-mills/cjm-transcript-review/.cjm/manifests/cjm-graph-plugin-sqlite.json\n\n\nDiscovered 1 plugins from /mnt/SN850X_8TB_EXT4/Projects/GitHub/cj-mills/cjm-transcript-review/.cjm/manifests\nFound plugin: cjm-graph-plugin-sqlite v0.0.3\n\n\n\n# Initialize and test GraphService\nif graph_meta:\n    # Load the plugin\n    # manager.load_plugin(graph_meta)\n    manager.load_plugin(graph_meta, {\n        \"db_path\": graph_meta.manifest.get(\"db_path\")\n    })\n    \n    graph_service = GraphService(manager)\n    print(f\"Plugin available: {graph_service.is_available()}\")\n\n[PluginManager] Launching worker for cjm-graph-plugin-sqlite...\n\n\n[cjm-graph-plugin-sqlite] Starting worker on port 57931...\n[cjm-graph-plugin-sqlite] Logs: /home/innom-dt/.cjm/logs/cjm-graph-plugin-sqlite.log\n\n\n[PluginManager] HTTP Request: GET http://127.0.0.1:57931/health \"HTTP/1.1 200 OK\"\n[PluginManager] HTTP Request: POST http://127.0.0.1:57931/initialize \"HTTP/1.1 200 OK\"\n[PluginManager] Loaded plugin: cjm-graph-plugin-sqlite\n\n\n[cjm-graph-plugin-sqlite] Worker ready.\nPlugin available: True\n\n\n\n# Test committing a document to the graph with separate text segments and VAD chunks\nfrom cjm_transcript_segmentation.models import TextSegment\nfrom cjm_transcript_vad_align.models import VADChunk\n\nif graph_meta and graph_service.is_available():\n    # Create text segments (no time fields)\n    text_segments = [\n        TextSegment(\n            index=0,\n            text=\"Laying Plans\",\n            source_id=\"job_123\",\n            source_provider_id=\"test-plugin\",\n            start_char=0,\n            end_char=12,\n        ),\n        TextSegment(\n            index=1,\n            text=\"Sun Tzu said: The art of war is of vital importance to the state.\",\n            source_id=\"job_123\",\n            source_provider_id=\"test-plugin\",\n            start_char=13,\n            end_char=79,\n        ),\n        TextSegment(\n            index=2,\n            text=\"It is a matter of life and death, a road either to safety or to ruin.\",\n            source_id=\"job_123\",\n            source_provider_id=\"test-plugin\",\n            start_char=80,\n            end_char=150,\n        )\n    ]\n    \n    # Create VAD chunks with timing (1:1 with segments)\n    vad_chunks = [\n        VADChunk(index=0, start_time=0.0, end_time=1.5),\n        VADChunk(index=1, start_time=1.5, end_time=5.0),\n        VADChunk(index=2, start_time=5.0, end_time=9.0),\n    ]\n    \n    print(f\"Committing document with {len(text_segments)} segments and {len(vad_chunks)} VAD chunks...\")\n    \n    # Use await directly (Jupyter supports top-level await)\n    result = await graph_service.commit_document_async(\n        title=\"The Art of War - Chapter 1\",\n        text_segments=text_segments,\n        vad_chunks=vad_chunks,\n        media_type=\"audio\",\n    )\n    \n    print(f\"\\nCommit result:\")\n    print(f\"  Document ID: {result['document_id']}\")\n    print(f\"  Segment IDs: {result['segment_ids']}\")\n    print(f\"  Edge count: {result['edge_count']}\")\n\n[PluginManager] HTTP Request: POST http://127.0.0.1:57931/execute \"HTTP/1.1 200 OK\"\n[PluginManager] HTTP Request: POST http://127.0.0.1:57931/execute \"HTTP/1.1 200 OK\"\n\n\nCommitting document with 3 segments and 3 VAD chunks...\n\nCommit result:\n  Document ID: 6eeda707-4438-4094-8d44-6272ff5da8a3\n  Segment IDs: ['70567737-0663-4f74-8e9b-18e507249e3c', '82e8b884-a3c2-4411-9c5e-d606277e6e83', '8d773f77-9c54-40d6-8a60-3c6e7c45509d']\n  Edge count: 6\n\n\n\n# Verify the graph structure (use await directly - Jupyter supports top-level await)\nif graph_meta and graph_service.is_available():\n    # Get graph schema\n    schema = await manager.execute_plugin_async(\n        \"cjm-graph-plugin-sqlite\", \n        action=\"get_schema\"\n    )\n    print(f\"Graph schema:\")\n    print(f\"  Node labels: {schema.get('node_labels', [])}\")\n    print(f\"  Relation types: {schema.get('relation_types', [])}\")\n\n[PluginManager] HTTP Request: POST http://127.0.0.1:57931/execute \"HTTP/1.1 200 OK\"\n\n\nGraph schema:\n  Node labels: ['Document', 'Segment']\n  Relation types: []\n\n\n\n# Cleanup\nif graph_meta:\n    manager.unload_all()\n    print(\"Plugins unloaded\")\n\n[PluginManager] HTTP Request: POST http://127.0.0.1:57931/cleanup \"HTTP/1.1 200 OK\"\n[PluginManager] Unloaded plugin: cjm-graph-plugin-sqlite\n\n\nPlugins unloaded",
+    "crumbs": [
+      "services",
+      "graph"
+    ]
+  },
+  {
+    "objectID": "components/helpers.html",
+    "href": "components/helpers.html",
+    "title": "helpers",
+    "section": "",
+    "text": "These extract review state from the nested step_states.review path in the interaction context. The review step also reads segments and VAD chunks from the segmentation and alignment steps respectively.",
+    "crumbs": [
+      "components",
+      "helpers"
+    ]
+  },
+  {
+    "objectID": "components/helpers.html#state-getters",
+    "href": "components/helpers.html#state-getters",
+    "title": "helpers",
+    "section": "",
+    "text": "These extract review state from the nested step_states.review path in the interaction context. The review step also reads segments and VAD chunks from the segmentation and alignment steps respectively.",
+    "crumbs": [
+      "components",
+      "helpers"
+    ]
+  },
+  {
+    "objectID": "components/helpers.html#cross-step-data-access",
+    "href": "components/helpers.html#cross-step-data-access",
+    "title": "helpers",
+    "section": "Cross-Step Data Access",
+    "text": "Cross-Step Data Access\nReview reads segments and VAD chunks from their respective step states.",
+    "crumbs": [
+      "components",
+      "helpers"
+    ]
+  },
+  {
+    "objectID": "components/keyboard_config.html",
+    "href": "components/keyboard_config.html",
+    "title": "keyboard_config",
+    "section": "",
+    "text": "Returns (zone, actions, modes) tuple for assembly into a KeyboardManager. Review uses simple navigation only (no sub-modes like segmentation’s split mode).\n\nsource\n\n\n\ndef create_review_kb_parts(\n    ids:CardStackHtmlIds, # Card stack HTML IDs\n    button_ids:CardStackButtonIds, # Card stack button IDs for navigation\n    config:CardStackConfig, # Card stack configuration\n)-&gt;Tuple: # (zone, actions, modes)\n\nCreate review-specific keyboard building blocks.",
+    "crumbs": [
+      "components",
+      "keyboard_config"
+    ]
+  },
+  {
+    "objectID": "components/keyboard_config.html#keyboard-parts-builder",
+    "href": "components/keyboard_config.html#keyboard-parts-builder",
+    "title": "keyboard_config",
+    "section": "",
+    "text": "Returns (zone, actions, modes) tuple for assembly into a KeyboardManager. Review uses simple navigation only (no sub-modes like segmentation’s split mode).\n\nsource\n\n\n\ndef create_review_kb_parts(\n    ids:CardStackHtmlIds, # Card stack HTML IDs\n    button_ids:CardStackButtonIds, # Card stack button IDs for navigation\n    config:CardStackConfig, # Card stack configuration\n)-&gt;Tuple: # (zone, actions, modes)\n\nCreate review-specific keyboard building blocks.",
+    "crumbs": [
+      "components",
+      "keyboard_config"
+    ]
+  },
+  {
+    "objectID": "components/keyboard_config.html#zone-manager-factory",
+    "href": "components/keyboard_config.html#zone-manager-factory",
+    "title": "keyboard_config",
+    "section": "Zone Manager Factory",
+    "text": "Zone Manager Factory\nCreates a complete ZoneManager for the review step (single-zone, no zone switching).\n\nsource\n\ncreate_review_keyboard_manager\n\ndef create_review_keyboard_manager(\n    ids:CardStackHtmlIds, # Card stack HTML IDs\n    button_ids:CardStackButtonIds, # Card stack button IDs for navigation\n    config:CardStackConfig, # Card stack configuration\n)-&gt;ZoneManager: # Configured keyboard zone manager\n\nCreate the keyboard zone manager for the review step.",
+    "crumbs": [
+      "components",
+      "keyboard_config"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html",
+    "href": "components/step_renderer.html",
+    "title": "step_renderer",
+    "section": "",
+    "text": "Review toolbar with card count selector and statistics.\n\nsource\n\n\n\ndef render_review_toolbar(\n    visible_count:int=3, # Current visible card count\n    is_auto_mode:bool=False, # Whether card count is in auto-adjust mode\n    playback_speed:float=1.0, # Current playback speed\n    auto_navigate:bool=False, # Whether auto-navigate is enabled\n    document_title:str='', # Current document title\n    urls:ReviewUrls=None, # URL bundle for audio control routes\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Toolbar component\n\nRender the review toolbar with title input, audio controls, and card count selector.\n\nsource\n\n\n\n\ndef render_review_source_position(\n    assembled:List, # Assembled segments\n    focused_index:int=0, # Currently focused segment index\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Audio file position indicator (empty if single file)\n\nRender audio file position indicator for the focused segment.\n\nsource\n\n\n\n\ndef render_review_stats(\n    assembled:List, # Assembled segments\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Statistics component\n\nRender review statistics.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html#toolbar-stats",
+    "href": "components/step_renderer.html#toolbar-stats",
+    "title": "step_renderer",
+    "section": "",
+    "text": "Review toolbar with card count selector and statistics.\n\nsource\n\n\n\ndef render_review_toolbar(\n    visible_count:int=3, # Current visible card count\n    is_auto_mode:bool=False, # Whether card count is in auto-adjust mode\n    playback_speed:float=1.0, # Current playback speed\n    auto_navigate:bool=False, # Whether auto-navigate is enabled\n    document_title:str='', # Current document title\n    urls:ReviewUrls=None, # URL bundle for audio control routes\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Toolbar component\n\nRender the review toolbar with title input, audio controls, and card count selector.\n\nsource\n\n\n\n\ndef render_review_source_position(\n    assembled:List, # Assembled segments\n    focused_index:int=0, # Currently focused segment index\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Audio file position indicator (empty if single file)\n\nRender audio file position indicator for the focused segment.\n\nsource\n\n\n\n\ndef render_review_stats(\n    assembled:List, # Assembled segments\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Statistics component\n\nRender review statistics.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html#keyboard-hints",
+    "href": "components/step_renderer.html#keyboard-hints",
+    "title": "step_renderer",
+    "section": "Keyboard Hints",
+    "text": "Keyboard Hints\nCollapsible keyboard shortcut hints for the review step.\n\nsource\n\nrender_review_keyboard_hints\n\ndef render_review_keyboard_hints(\n    oob:bool=False, # Whether to render as OOB swap\n)-&gt;Any: # Collapsible keyboard hints component\n\nRender keyboard shortcut hints in a collapsible container.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html#main-content-area",
+    "href": "components/step_renderer.html#main-content-area",
+    "title": "step_renderer",
+    "section": "Main Content Area",
+    "text": "Main Content Area\nRenders the review content area with card stack viewport and audio element.\n\nsource\n\nrender_review_content\n\ndef render_review_content(\n    assembled:List, # Assembled segments to display\n    focused_index:int, # Currently focused segment index\n    visible_count:int, # Number of visible cards in viewport\n    card_width:int, # Card stack width in rem\n    urls:ReviewUrls, # URL bundle for review routes\n    audio_urls:Optional=None, # Audio file URLs for Web Audio API\n)-&gt;Any: # Main content area\n\nRender the review content area with card stack viewport and keyboard system.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html#footer",
+    "href": "components/step_renderer.html#footer",
+    "title": "step_renderer",
+    "section": "Footer",
+    "text": "Footer\nFooter with progress indicator and statistics.\n\nsource\n\nrender_review_footer\n\ndef render_review_footer(\n    assembled:List, # Assembled segments\n    focused_index:int, # Currently focused segment index\n)-&gt;Any: # Footer content with progress indicator, source position, and stats\n\nRender footer content with progress indicator, source position, and statistics.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "components/step_renderer.html#full-step-renderer",
+    "href": "components/step_renderer.html#full-step-renderer",
+    "title": "step_renderer",
+    "section": "Full Step Renderer",
+    "text": "Full Step Renderer\nRenders the complete review step with toolbar, content, and footer.\n\nsource\n\nrender_review_step\n\ndef render_review_step(\n    assembled:List, # Assembled segments to display\n    focused_index:int=0, # Currently focused segment index\n    visible_count:int=3, # Number of visible cards\n    is_auto_mode:bool=False, # Whether card count is in auto-adjust mode\n    card_width:int=80, # Card stack width in rem\n    playback_speed:float=1.0, # Current playback speed\n    auto_navigate:bool=False, # Whether auto-navigate is enabled\n    document_title:str='', # Current document title\n    urls:ReviewUrls=None, # URL bundle for review routes\n    audio_urls:Optional=None, # Audio file URLs for Web Audio API\n)-&gt;Any: # Complete review step component\n\nRender the complete review step with toolbar, content, and footer.",
+    "crumbs": [
+      "components",
+      "step_renderer"
+    ]
+  },
+  {
+    "objectID": "utils.html",
+    "href": "utils.html",
+    "title": "utils",
+    "section": "",
+    "text": "source\n\n\n\ndef format_time(\n    seconds:Optional, # Time in seconds\n)-&gt;str: # Formatted time string (m:ss.s)\n\nFormat seconds as m:ss.s for sub-second display.\n\nassert format_time(6.6) == \"0:06.6\"\nassert format_time(9.8) == \"0:09.8\"\nassert format_time(65.25) == \"1:05.2\"\nassert format_time(0.0) == \"0:00.0\"\nassert format_time(None) == \"-:--.-\"\nprint(\"format_time tests passed\")\n\nformat_time tests passed\n\n\n\nsource\n\n\n\n\ndef format_duration(\n    start:Optional, # Start time in seconds\n    end:Optional, # End time in seconds\n)-&gt;str: # Formatted duration string (e.g., \"3.2s\")\n\nFormat duration from start/end times.\n\nassert format_duration(6.6, 9.8) == \"3.2s\"\nassert format_duration(0.0, 1.5) == \"1.5s\"\nassert format_duration(None, 9.8) == \"-.-s\"\nassert format_duration(6.6, None) == \"-.-s\"\nprint(\"format_duration tests passed\")\n\nformat_duration tests passed",
+    "crumbs": [
+      "utils"
+    ]
+  },
+  {
+    "objectID": "utils.html#time-formatting",
+    "href": "utils.html#time-formatting",
+    "title": "utils",
+    "section": "",
+    "text": "source\n\n\n\ndef format_time(\n    seconds:Optional, # Time in seconds\n)-&gt;str: # Formatted time string (m:ss.s)\n\nFormat seconds as m:ss.s for sub-second display.\n\nassert format_time(6.6) == \"0:06.6\"\nassert format_time(9.8) == \"0:09.8\"\nassert format_time(65.25) == \"1:05.2\"\nassert format_time(0.0) == \"0:00.0\"\nassert format_time(None) == \"-:--.-\"\nprint(\"format_time tests passed\")\n\nformat_time tests passed\n\n\n\nsource\n\n\n\n\ndef format_duration(\n    start:Optional, # Start time in seconds\n    end:Optional, # End time in seconds\n)-&gt;str: # Formatted duration string (e.g., \"3.2s\")\n\nFormat duration from start/end times.\n\nassert format_duration(6.6, 9.8) == \"3.2s\"\nassert format_duration(0.0, 1.5) == \"1.5s\"\nassert format_duration(None, 9.8) == \"-.-s\"\nassert format_duration(6.6, None) == \"-.-s\"\nprint(\"format_duration tests passed\")\n\nformat_duration tests passed",
+    "crumbs": [
+      "utils"
+    ]
+  },
+  {
+    "objectID": "utils.html#source-info-formatting",
+    "href": "utils.html#source-info-formatting",
+    "title": "utils",
+    "section": "Source Info Formatting",
+    "text": "Source Info Formatting\n\nsource\n\ntruncate_id\n\ndef truncate_id(\n    id_str:Optional, # Full ID string\n    length:int=8, # Number of characters to keep\n)-&gt;str: # Truncated ID with ellipsis if needed\n\nTruncate an ID string for display, adding ellipsis if truncated.\n\nassert truncate_id(\"job_be1ac4f7d3e2\") == \"job_be1a...\"\nassert truncate_id(\"short\") == \"short\"\nassert truncate_id(\"exactly8\") == \"exactly8\"\nassert truncate_id(None) == \"-\"\nassert truncate_id(\"long_id\", length=4) == \"long...\"\nprint(\"truncate_id tests passed\")\n\ntruncate_id tests passed\n\n\n\nsource\n\n\nformat_char_range\n\ndef format_char_range(\n    start_char:Optional, # Start character index\n    end_char:Optional, # End character index\n)-&gt;str: # Formatted range string (e.g., \"char:25-68\")\n\nFormat character range for source reference display.\n\nassert format_char_range(25, 68) == \"char:25-68\"\nassert format_char_range(0, 100) == \"char:0-100\"\nassert format_char_range(None, 68) == \"char:-\"\nassert format_char_range(25, None) == \"char:-\"\nprint(\"format_char_range tests passed\")\n\nformat_char_range tests passed\n\n\n\nsource\n\n\nformat_source_info\n\ndef format_source_info(\n    provider_id:Optional, # Source provider identifier\n    source_id:Optional, # Source record ID\n    start_char:Optional=None, # Start character index\n    end_char:Optional=None, # End character index\n)-&gt;str: # Formatted source info string\n\nFormat source info for display in review cards.\n\nresult = format_source_info(\"voxtral\", \"job_be1ac4f7d3e2\", 25, 68)\nassert result == \"voxtral | job_be1a... | char:25-68\"\n\nresult = format_source_info(None, None)\nassert result == \"- | - | char:-\"\n\nresult = format_source_info(\"local\", \"short\", 0, 50)\nassert result == \"local | short | char:0-50\"\n\nprint(\"format_source_info tests passed\")\n\nformat_source_info tests passed",
+    "crumbs": [
+      "utils"
+    ]
+  },
+  {
+    "objectID": "utils.html#document-title",
+    "href": "utils.html#document-title",
+    "title": "utils",
+    "section": "Document Title",
+    "text": "Document Title\n\nsource\n\ngenerate_document_title\n\ndef generate_document_title(\n    media_path:Optional, # Path to media file\n    default:str='Untitled Document', # Fallback title if path is None\n)-&gt;str: # Clean document title\n\nGenerate a document title from a media file path.\n\nassert generate_document_title(\"/path/to/my_podcast_episode.mp3\") == \"My Podcast Episode\"\nassert generate_document_title(\"/path/to/audio-file-123.wav\") == \"Audio File 123\"\nassert generate_document_title(\"simple_name.mp3\") == \"Simple Name\"\nassert generate_document_title(None) == \"Untitled Document\"\nassert generate_document_title(\"\", \"Custom Default\") == \"Custom Default\"\nprint(\"generate_document_title tests passed\")",
+    "crumbs": [
+      "utils"
+    ]
+  },
+  {
+    "objectID": "routes/init.html",
+    "href": "routes/init.html",
+    "title": "init",
+    "section": "",
+    "text": "source\n\n\n\ndef init_review_routers(\n    state_store:SQLiteWorkflowStateStore, # The workflow state store\n    workflow_id:str, # The workflow identifier\n    prefix:str, # Base prefix for review routes (e.g., \"/workflow/review\")\n    audio_src_url:str='', # Audio source route (from core routes)\n    graph_service:Optional=None, # Graph service for commit (None = no commit route)\n    alert_container_id:str='commit-alert-container', # ID of container for commit alerts\n)-&gt;Tuple: # (routers, urls, routes)\n\nInitialize and return all review routers with URL bundle.",
+    "crumbs": [
+      "routes",
+      "init"
+    ]
+  },
+  {
+    "objectID": "routes/init.html#router-assembly",
+    "href": "routes/init.html#router-assembly",
+    "title": "init",
+    "section": "",
+    "text": "source\n\n\n\ndef init_review_routers(\n    state_store:SQLiteWorkflowStateStore, # The workflow state store\n    workflow_id:str, # The workflow identifier\n    prefix:str, # Base prefix for review routes (e.g., \"/workflow/review\")\n    audio_src_url:str='', # Audio source route (from core routes)\n    graph_service:Optional=None, # Graph service for commit (None = no commit route)\n    alert_container_id:str='commit-alert-container', # ID of container for commit alerts\n)-&gt;Tuple: # (routers, urls, routes)\n\nInitialize and return all review routers with URL bundle.",
+    "crumbs": [
+      "routes",
+      "init"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html",
+    "href": "routes/card_stack.html",
+    "title": "card_stack",
+    "section": "",
+    "text": "Shared helpers that assemble OOB response tuples for card stack operations.",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html#response-builders",
+    "href": "routes/card_stack.html#response-builders",
+    "title": "card_stack",
+    "section": "",
+    "text": "Shared helpers that assemble OOB response tuples for card stack operations.",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html#navigation-handler",
+    "href": "routes/card_stack.html#navigation-handler",
+    "title": "card_stack",
+    "section": "Navigation Handler",
+    "text": "Navigation Handler",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html#update-viewport-handler",
+    "href": "routes/card_stack.html#update-viewport-handler",
+    "title": "card_stack",
+    "section": "Update Viewport Handler",
+    "text": "Update Viewport Handler\nHandler for updating the viewport when card count changes.",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html#save-width-handler",
+    "href": "routes/card_stack.html#save-width-handler",
+    "title": "card_stack",
+    "section": "Save Width Handler",
+    "text": "Save Width Handler",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "routes/card_stack.html#router-initialization",
+    "href": "routes/card_stack.html#router-initialization",
+    "title": "card_stack",
+    "section": "Router Initialization",
+    "text": "Router Initialization\nCreates the card stack router with navigation and viewport routes.\n\nsource\n\ninit_card_stack_router\n\ndef init_card_stack_router(\n    state_store:SQLiteWorkflowStateStore, # The workflow state store\n    workflow_id:str, # The workflow identifier\n    prefix:str, # Route prefix (e.g., \"/workflow/review/card_stack\")\n    urls:ReviewUrls, # URL bundle (populated after routes defined)\n)-&gt;Tuple: # (router, route_dict)\n\nInitialize card stack routes for review.",
+    "crumbs": [
+      "routes",
+      "card_stack"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "cjm-transcript-review",
+    "section": "",
+    "text": "pip install cjm_transcript_review",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "cjm-transcript-review",
+    "section": "",
+    "text": "pip install cjm_transcript_review",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  },
+  {
+    "objectID": "index.html#project-structure",
+    "href": "index.html#project-structure",
+    "title": "cjm-transcript-review",
+    "section": "Project Structure",
+    "text": "Project Structure\nnbs/\n├── components/ (7)\n│   ├── audio_controls.ipynb     # Audio playback controls: speed selector and auto-navigate toggle\n│   ├── callbacks.ipynb          # Focus change callback and audio playback JavaScript for the review card stack\n│   ├── card_stack_config.ipynb  # Card stack configuration, HTML IDs, and button IDs for the review card stack\n│   ├── helpers.ipynb            # State getters for the review step from InteractionContext\n│   ├── keyboard_config.ipynb    # Review-specific keyboard building blocks for assembly into a KeyboardManager\n│   ├── review_card.ipynb        # Review card component showing assembled segment with timing and source info\n│   └── step_renderer.ipynb      # Composable render functions for the review card stack step\n├── routes/ (5)\n│   ├── audio.ipynb       # Route handlers for audio playback controls\n│   ├── card_stack.ipynb  # Card stack UI operations — navigation, viewport, and response builders\n│   ├── commit.ipynb      # Route handler for committing the document to the context graph\n│   ├── core.ipynb        # Review step state management helpers\n│   └── init.ipynb        # Router assembly for Phase 3 review routes\n├── services/ (1)\n│   └── graph.ipynb  # Graph service for committing documents and segments to the context graph\n├── html_ids.ipynb  # HTML ID constants for Phase 3: Review & Commit\n├── models.ipynb    # Review step state and working document model for Phase 3: Review & Commit\n└── utils.ipynb     # Time formatting and source info display utilities for review cards\nTotal: 16 notebooks across 3 directories",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  },
+  {
+    "objectID": "index.html#module-dependencies",
+    "href": "index.html#module-dependencies",
+    "title": "cjm-transcript-review",
+    "section": "Module Dependencies",
+    "text": "Module Dependencies\ngraph LR\n    components_audio_controls[components.audio_controls&lt;br/&gt;audio_controls]\n    components_callbacks[components.callbacks&lt;br/&gt;callbacks]\n    components_card_stack_config[components.card_stack_config&lt;br/&gt;card_stack_config]\n    components_helpers[components.helpers&lt;br/&gt;helpers]\n    components_keyboard_config[components.keyboard_config&lt;br/&gt;keyboard_config]\n    components_review_card[components.review_card&lt;br/&gt;review_card]\n    components_step_renderer[components.step_renderer&lt;br/&gt;step_renderer]\n    html_ids[html_ids&lt;br/&gt;html_ids]\n    models[models&lt;br/&gt;models]\n    routes_audio[routes.audio&lt;br/&gt;audio]\n    routes_card_stack[routes.card_stack&lt;br/&gt;card_stack]\n    routes_commit[routes.commit&lt;br/&gt;commit]\n    routes_core[routes.core&lt;br/&gt;core]\n    routes_init[routes.init&lt;br/&gt;init]\n    services_graph[services.graph&lt;br/&gt;graph]\n    utils[utils&lt;br/&gt;utils]\n\n    components_helpers --&gt; models\n    components_review_card --&gt; utils\n    components_review_card --&gt; html_ids\n    components_step_renderer --&gt; components_review_card\n    components_step_renderer --&gt; components_card_stack_config\n    components_step_renderer --&gt; models\n    components_step_renderer --&gt; components_callbacks\n    components_step_renderer --&gt; html_ids\n    components_step_renderer --&gt; components_keyboard_config\n    components_step_renderer --&gt; components_audio_controls\n    routes_audio --&gt; routes_core\n    routes_audio --&gt; models\n    routes_card_stack --&gt; routes_core\n    routes_card_stack --&gt; components_review_card\n    routes_card_stack --&gt; components_card_stack_config\n    routes_card_stack --&gt; components_step_renderer\n    routes_card_stack --&gt; models\n    routes_commit --&gt; routes_core\n    routes_commit --&gt; utils\n    routes_commit --&gt; models\n    routes_commit --&gt; services_graph\n    routes_core --&gt; components_review_card\n    routes_core --&gt; models\n    routes_init --&gt; routes_core\n    routes_init --&gt; routes_commit\n    routes_init --&gt; routes_card_stack\n    routes_init --&gt; models\n    routes_init --&gt; routes_audio\n    routes_init --&gt; services_graph\n29 cross-module dependencies detected",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  },
+  {
+    "objectID": "index.html#cli-reference",
+    "href": "index.html#cli-reference",
+    "title": "cjm-transcript-review",
+    "section": "CLI Reference",
+    "text": "CLI Reference\nNo CLI commands found in this project.",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  },
+  {
+    "objectID": "index.html#module-overview",
+    "href": "index.html#module-overview",
+    "title": "cjm-transcript-review",
+    "section": "Module Overview",
+    "text": "Module Overview\nDetailed documentation for each module in the project:\n\naudio (audio.ipynb)\n\nRoute handlers for audio playback controls\n\n\nImport\nfrom cjm_transcript_review.routes.audio import (\n    DEBUG_AUDIO_ROUTES,\n    init_audio_router\n)\n\n\nFunctions\ndef _generate_speed_change_js(\n    speed:float  # New playback speed\n) -&gt; str:  # JavaScript to update playback rate\n    \"Generate JS to update Web Audio API playback rate via shared library.\"\ndef _generate_auto_nav_js(\n    enabled:bool  # Whether auto-navigate is enabled\n) -&gt; str:  # JavaScript to update auto-navigate flag\n    \"Generate JS to update auto-navigate flag via shared library.\"\ndef _generate_replay_js() -&gt; str:  # JavaScript to replay current segment\n    \"Generate JS to replay the current segment's audio.\"\ndef init_audio_router(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    prefix:str,  # Base prefix for audio routes\n    urls:ReviewUrls,  # URL bundle to populate\n) -&gt; Tuple[APIRouter, Dict[str, Callable]]:  # (router, routes dict)\n    \"Initialize audio control routes.\"\n\n\nVariables\nDEBUG_AUDIO_ROUTES = False\n\n\n\naudio_controls (audio_controls.ipynb)\n\nAudio playback controls: speed selector and auto-navigate toggle\n\n\nImport\nfrom cjm_transcript_review.components.audio_controls import (\n    PLAYBACK_SPEEDS,\n    AudioControlIds,\n    render_speed_selector,\n    render_auto_navigate_toggle,\n    render_audio_controls\n)\n\n\nFunctions\ndef render_speed_selector(\n    current_speed:float=1.0,  # Current playback speed\n    change_url:str=\"\",  # URL to POST speed changes to\n) -&gt; Any:  # Speed selector component\n    \"Render playback speed selector dropdown.\"\ndef render_auto_navigate_toggle(\n    enabled:bool=False,  # Whether auto-navigate is enabled\n    toggle_url:str=\"\",  # URL to POST toggle changes to\n) -&gt; Any:  # Auto-navigate toggle component\n    \"Render auto-navigate toggle switch.\"\ndef render_audio_controls(\n    current_speed:float=1.0,  # Current playback speed\n    auto_navigate:bool=False,  # Whether auto-navigate is enabled\n    speed_url:str=\"\",  # URL for speed changes\n    auto_nav_url:str=\"\",  # URL for auto-navigate toggle\n    oob:bool=False,  # Whether to render as OOB swap\n) -&gt; Any:  # Combined audio controls component\n    \"Render combined audio controls (speed selector + auto-navigate toggle).\"\n\n\nClasses\nclass AudioControlIds:\n    \"HTML ID constants for audio control elements.\"\n\n\nVariables\nPLAYBACK_SPEEDS: List[tuple]\n\n\n\ncallbacks (callbacks.ipynb)\n\nFocus change callback and audio playback JavaScript for the review card stack\n\n\nImport\nfrom cjm_transcript_review.components.callbacks import (\n    REVIEW_AUDIO_CONFIG,\n    generate_review_callbacks_script\n)\n\n\nFunctions\ndef generate_review_callbacks_script(\n    ids:CardStackHtmlIds,  # Card stack HTML IDs\n    button_ids:CardStackButtonIds,  # Card stack button IDs\n    config:CardStackConfig,  # Card stack configuration\n    urls:CardStackUrls,  # Card stack URL bundle\n    container_id:str,  # ID of the review container (parent of card stack)\n    focus_input_id:str,  # ID of hidden input for focused segment index\n) -&gt; any:  # Script element with all JavaScript callbacks\n    \"Generate JavaScript for review card stack with Web Audio API audition.\"\n\n\nVariables\nREVIEW_AUDIO_CONFIG\n\n\n\ncard_stack (card_stack.ipynb)\n\nCard stack UI operations — navigation, viewport, and response builders\n\n\nImport\nfrom cjm_transcript_review.routes.card_stack import (\n    init_card_stack_router\n)\n\n\nFunctions\ndef _build_slots_oob(\n    assembled:List[AssembledSegment],  # Assembled segments with VAD chunks\n    state:CardStackState,  # Card stack viewport state\n    urls:ReviewUrls,  # URL bundle\n) -&gt; List[Any]:  # OOB slot elements\n    \"Build OOB slot updates for the viewport sections.\"\ndef _build_nav_response(\n    assembled:List[AssembledSegment],  # Assembled segments with VAD chunks\n    state:CardStackState,  # Card stack viewport state\n    urls:ReviewUrls,  # URL bundle\n) -&gt; Tuple:  # OOB elements (slots + progress + focus)\n    \"Build OOB response for navigation.\"\ndef _handle_review_navigate(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    sess,  # FastHTML session object\n    direction:str,  # Navigation direction: \"up\", \"down\", \"first\", \"last\", \"page_up\", \"page_down\"\n    urls:ReviewUrls,  # URL bundle for review routes\n):  # OOB slot updates with progress, focus, and source position\n    \"Navigate to a different segment in the viewport using OOB slot swaps.\"\nasync def _handle_review_update_viewport(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    request,  # FastHTML request object\n    sess,  # FastHTML session object\n    visible_count:int,  # New number of visible cards\n    urls:ReviewUrls,  # URL bundle for review routes\n):  # Full viewport component (outerHTML swap)\n    \"Update the viewport with a new card count.\"\ndef _handle_review_save_width(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    sess,  # FastHTML session object\n    card_width:int,  # Card stack width in rem\n) -&gt; None:  # No response body (swap=none on client)\n    \"Save the card stack width to server state.\"\ndef init_card_stack_router(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    prefix:str,  # Route prefix (e.g., \"/workflow/review/card_stack\")\n    urls:ReviewUrls,  # URL bundle (populated after routes defined)\n) -&gt; Tuple[APIRouter, Dict[str, Callable]]:  # (router, route_dict)\n    \"Initialize card stack routes for review.\"\n\n\n\ncard_stack_config (card_stack_config.ipynb)\n\nCard stack configuration, HTML IDs, and button IDs for the review card stack\n\n\nImport\nfrom cjm_transcript_review.components.card_stack_config import (\n    REVIEW_CS_CONFIG,\n    REVIEW_CS_IDS,\n    REVIEW_CS_BTN_IDS\n)\n\n\nVariables\nREVIEW_CS_CONFIG\nREVIEW_CS_IDS\nREVIEW_CS_BTN_IDS\n\n\n\ncommit (commit.ipynb)\n\nRoute handler for committing the document to the context graph\n\n\nImport\nfrom cjm_transcript_review.routes.commit import (\n    DEBUG_COMMIT_ROUTES,\n    COMMIT_ALERT_ID,\n    CommitResult,\n    init_commit_router\n)\n\n\nFunctions\ndef _render_commit_alert(\n    result:CommitResult,  # Commit operation result\n    auto_dismiss_ms:int=5000,  # Auto-dismiss after milliseconds (0 = no auto-dismiss)\n) -&gt; Div:  # Alert element with optional auto-dismiss script\n    \"Render a success or error alert for commit result.\"\nasync def _handle_commit(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str,  # Session identifier string\n    graph_service:GraphService,  # Graph service for committing\n    document_title:Optional[str]=None,  # Override document title (None = auto-generate)\n) -&gt; CommitResult:  # Result of the commit operation\n    \"Handle committing the document to the context graph.\"\ndef init_commit_router(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    prefix:str,  # Base prefix for commit route\n    graph_service:GraphService,  # Graph service for committing\n    urls:ReviewUrls,  # URL bundle to populate\n    alert_container_id:str=\"commit-alert-container\",  # ID of container for alert OOB swap\n) -&gt; Tuple[APIRouter, Dict[str, Callable]]:  # (router, routes dict)\n    \"Initialize commit route.\"\n\n\nClasses\n@dataclass\nclass CommitResult:\n    \"Result of a commit operation.\"\n    \n    success: bool  # Whether the commit succeeded\n    document_id: Optional[str]  # Created document node ID\n    segment_count: int = 0  # Number of segments committed\n    edge_count: int = 0  # Number of edges created\n    error: Optional[str]  # Error message if failed\n\n\nVariables\nDEBUG_COMMIT_ROUTES = False\nCOMMIT_ALERT_ID = 'commit-alert'\n\n\n\ncore (core.ipynb)\n\nReview step state management helpers\n\n\nImport\nfrom cjm_transcript_review.routes.core import (\n    WorkflowStateStore,\n    DEBUG_REVIEW_STATE,\n    ReviewContext\n)\n\n\nFunctions\ndef _get_review_state(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str  # Session identifier string\n) -&gt; ReviewStepState:  # Review step state dictionary\n    \"Get the review step state from the workflow state store.\"\ndef _get_segmentation_state(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str  # Session identifier string\n) -&gt; Dict[str, Any]:  # Segmentation step state dictionary\n    \"Get the segmentation step state from the workflow state store.\"\ndef _get_alignment_state(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str  # Session identifier string\n) -&gt; Dict[str, Any]:  # Alignment step state dictionary\n    \"Get the alignment step state from the workflow state store.\"\ndef _load_review_context(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str  # Session identifier string\n) -&gt; ReviewContext:  # Common review state values\n    \"Load commonly-needed review state values including cross-step data.\"\ndef _get_assembled_segments(\n    ctx:ReviewContext  # Loaded review context\n) -&gt; List[AssembledSegment]:  # Paired segments with VAD chunks\n    \"Pair segments with VAD chunks for review display.\"\ndef _update_review_state(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str,  # Session identifier string\n    focused_index:int=None,  # Updated focused index (None = don't change)\n    visible_count:int=None,  # Visible card count (None = don't change)\n    is_auto_mode:bool=None,  # Auto-adjust mode flag (None = don't change)\n    card_width:int=None,  # Card stack width in rem (None = don't change)\n    document_title:str=None,  # Document title (None = don't change)\n    is_validated:bool=None,  # Validation flag (None = don't change)\n    playback_speed:float=None,  # Playback speed (None = don't change)\n    auto_navigate:bool=None,  # Auto-navigate flag (None = don't change)\n) -&gt; None\n    \"Update the review step state in the workflow state store.\"\ndef _handle_update_title(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    session_id:str,  # Session identifier string\n    document_title:str,  # New document title from form input\n) -&gt; None\n    \"Update the document title in review state.\"\ndef _build_card_stack_state(\n    ctx:ReviewContext,  # Loaded review context\n) -&gt; CardStackState:  # Card stack state for library functions\n    \"Build a CardStackState from review context for library calls.\"\n\n\nClasses\nclass ReviewContext(NamedTuple):\n    \"Common review state values loaded by handlers.\"\n\n\nVariables\nDEBUG_REVIEW_STATE = False\n\n\n\ngraph (graph.ipynb)\n\nGraph service for committing documents and segments to the context graph\n\n\nImport\nfrom cjm_transcript_review.services.graph import (\n    GraphService\n)\n\n\nClasses\nclass GraphService:\n    def __init__(\n        self,\n        plugin_manager:PluginManager,  # Plugin manager for accessing graph plugin\n        plugin_name:str=\"cjm-graph-plugin-sqlite\",  # Name of the graph plugin\n    )\n    \"Service for committing structure to context graph.\"\n    \n    def __init__(\n            self,\n            plugin_manager:PluginManager,  # Plugin manager for accessing graph plugin\n            plugin_name:str=\"cjm-graph-plugin-sqlite\",  # Name of the graph plugin\n        )\n        \"Initialize the graph service.\"\n    \n    def is_available(self) -&gt; bool:  # True if plugin is loaded and ready\n            \"\"\"Check if the graph plugin is available.\"\"\"\n            return self._manager.get_plugin(self._plugin_name) is not None\n        \n        def ensure_loaded(\n            self,\n            config:Optional[Dict[str, Any]]=None,  # Optional plugin configuration\n        ) -&gt; bool:  # True if successfully loaded\n        \"Check if the graph plugin is available.\"\n    \n    def ensure_loaded(\n            self,\n            config:Optional[Dict[str, Any]]=None,  # Optional plugin configuration\n        ) -&gt; bool:  # True if successfully loaded\n        \"Ensure the graph plugin is loaded.\"\n    \n    async def commit_document_async(\n            self,\n            title:str,  # Document title\n            text_segments:List[TextSegment],  # Text segments from decomposition\n            vad_chunks:List[VADChunk],  # VAD chunks for timing (1:1 with segments)\n            media_type:str=\"audio\",  # Source media type\n        ) -&gt; Dict[str, Any]:  # Result with document_id and segment_ids\n        \"Commit a document to the context graph.\n\nAssembles text segments with VAD timing at commit time.\nRequires 1:1 alignment: len(text_segments) == len(vad_chunks).\"\n    \n    def commit_document(\n            self,\n            title:str,  # Document title\n            text_segments:List[TextSegment],  # Text segments from decomposition\n            vad_chunks:List[VADChunk],  # VAD chunks for timing\n            media_type:str=\"audio\",  # Source media type\n        ) -&gt; Dict[str, Any]:  # Result with document_id and segment_ids\n        \"Commit a document to the context graph synchronously.\"\n\n\n\nhelpers (helpers.ipynb)\n\nState getters for the review step from InteractionContext\n\n\nImport\nfrom cjm_transcript_review.components.helpers import *\n\n\nFunctions\ndef _get_review_state(\n    ctx:InteractionContext  # Interaction context with state\n) -&gt; ReviewStepState:  # Typed review step state\n    \"Get the full review step state from context.\"\ndef _get_focused_index(\n    ctx:InteractionContext,  # Interaction context with state\n    default:int=0,  # Default focused index\n) -&gt; int:  # Currently focused segment index\n    \"Get the currently focused segment index.\"\ndef _get_visible_count(\n    ctx:InteractionContext,  # Interaction context with state\n    default:int=5,  # Default visible card count\n) -&gt; int:  # Number of visible cards in viewport\n    \"Get the stored visible card count.\"\ndef _get_is_auto_mode(\n    ctx:InteractionContext,  # Interaction context with state\n) -&gt; bool:  # Whether card count is in auto-adjust mode\n    \"Get whether the card count is in auto-adjust mode.\"\ndef _get_card_width(\n    ctx:InteractionContext,  # Interaction context with state\n    default:int=50,  # Default card width in rem\n) -&gt; int:  # Card stack width in rem\n    \"Get the stored card stack width.\"\ndef _get_segments(\n    ctx:InteractionContext  # Interaction context with state\n) -&gt; List[TextSegment]:  # List of TextSegment objects from segmentation step\n    \"Get text segments from segmentation step state.\"\ndef _get_vad_chunks(\n    ctx:InteractionContext  # Interaction context with state\n) -&gt; List[VADChunk]:  # List of VADChunk objects from alignment step\n    \"Get VAD chunks from alignment step state.\"\ndef _get_media_path(\n    ctx:InteractionContext  # Interaction context with state\n) -&gt; Optional[str]:  # Path to original audio file or None\n    \"Get the original audio file path from alignment step.\"\ndef _is_aligned(\n    ctx:InteractionContext  # Interaction context with state\n) -&gt; bool:  # True if segment count matches VAD chunk count\n    \"Check if segments are aligned with VAD chunks (1:1 match).\"\n\n\n\nhtml_ids (html_ids.ipynb)\n\nHTML ID constants for Phase 3: Review & Commit\n\n\nImport\nfrom cjm_transcript_review.html_ids import (\n    ReviewHtmlIds\n)\n\n\nClasses\nclass ReviewHtmlIds:\n    \"HTML ID constants for Phase 3: Review & Commit.\"\n    \n    def as_selector(\n            id_str:str  # The HTML ID to convert\n        ) -&gt; str:  # CSS selector with # prefix\n        \"Convert an ID to a CSS selector format.\"\n    \n    def review_card(\n            index:int  # Segment index\n        ) -&gt; str:  # HTML ID for review card\n        \"Generate HTML ID for a review card.\"\n\n\n\ninit (init.ipynb)\n\nRouter assembly for Phase 3 review routes\n\n\nImport\nfrom cjm_transcript_review.routes.init import (\n    init_review_routers\n)\n\n\nFunctions\ndef init_review_routers(\n    state_store:WorkflowStateStore,  # The workflow state store\n    workflow_id:str,  # The workflow identifier\n    prefix:str,  # Base prefix for review routes (e.g., \"/workflow/review\")\n    audio_src_url:str=\"\",  # Audio source route (from core routes)\n    graph_service:Optional[GraphService]=None,  # Graph service for commit (None = no commit route)\n    alert_container_id:str=\"commit-alert-container\",  # ID of container for commit alerts\n) -&gt; Tuple[List[APIRouter], ReviewUrls, Dict[str, Callable]]:  # (routers, urls, routes)\n    \"Initialize and return all review routers with URL bundle.\"\n\n\n\nkeyboard_config (keyboard_config.ipynb)\n\nReview-specific keyboard building blocks for assembly into a KeyboardManager\n\n\nImport\nfrom cjm_transcript_review.components.keyboard_config import (\n    create_review_kb_parts,\n    create_review_keyboard_manager\n)\n\n\nFunctions\ndef create_review_kb_parts(\n    ids:CardStackHtmlIds,  # Card stack HTML IDs\n    button_ids:CardStackButtonIds,  # Card stack button IDs for navigation\n    config:CardStackConfig,  # Card stack configuration\n) -&gt; Tuple[FocusZone, tuple, tuple]:  # (zone, actions, modes)\n    \"Create review-specific keyboard building blocks.\"\ndef create_review_keyboard_manager(\n    ids:CardStackHtmlIds,  # Card stack HTML IDs\n    button_ids:CardStackButtonIds,  # Card stack button IDs for navigation\n    config:CardStackConfig,  # Card stack configuration\n) -&gt; ZoneManager:  # Configured keyboard zone manager\n    \"Create the keyboard zone manager for the review step.\"\n\n\n\nmodels (models.ipynb)\n\nReview step state and working document model for Phase 3: Review & Commit\n\n\nImport\nfrom cjm_transcript_review.models import (\n    ReviewStepState,\n    ReviewUrls,\n    WorkingDocument\n)\n\n\nClasses\nclass ReviewStepState(TypedDict):\n    \"State for Phase 3: Review & Commit.\"\n@dataclass\nclass ReviewUrls:\n    \"URL bundle for Phase 3 review route handlers and renderers.\"\n    \n    card_stack: CardStackUrls = field(...)\n    audio_src: str = ''  # Audio source route\n    speed_change: str = ''  # Playback speed change handler\n    toggle_auto_nav: str = ''  # Auto-navigate toggle handler\n    replay_current: str = ''  # Replay current segment handler\n    update_title: str = ''  # Document title update handler\n    commit: str = ''  # Commit handler route\n@dataclass\nclass WorkingDocument:\n    \"Container for workflow state during structure decomposition.\"\n    \n    title: str = ''  # Document title\n    media_type: str = 'audio'  # Source media type ('audio', 'video', 'text')\n    media_path: Optional[str]  # Path to primary source media\n    source_blocks: List[SourceBlock] = field(...)  # Ordered source blocks\n    combined_text: str = ''  # Concatenated text from all sources\n    segments: List[TextSegment] = field(...)  # Decomposed segments\n    vad_chunks: List[VADChunk] = field(...)  # VAD time ranges\n    audio_duration: Optional[float]  # Total audio duration in seconds\n    \n    def to_dict(self) -&gt; Dict[str, Any]:  # Dictionary representation\n            \"\"\"Convert to dictionary for JSON serialization.\"\"\"\n            return {\n                'title': self.title,\n        \"Convert to dictionary for JSON serialization.\"\n    \n    def from_dict(\n            cls,\n            data: Dict[str, Any]  # Dictionary representation\n        ) -&gt; \"WorkingDocument\":  # Reconstructed WorkingDocument\n        \"Create from dictionary.\"\n\n\n\nreview_card (review_card.ipynb)\n\nReview card component showing assembled segment with timing and source info\n\n\nImport\nfrom cjm_transcript_review.components.review_card import (\n    AssembledSegment,\n    render_review_card,\n    create_review_card_renderer\n)\n\n\nFunctions\ndef render_review_card(\n    assembled:AssembledSegment,  # Assembled segment with text and timing\n    card_role:CardRole,  # Role of this card in viewport (\"focused\" or \"context\")\n    has_boundary_above:bool=False,  # Audio file boundary exists above this card\n    has_boundary_below:bool=False,  # Audio file boundary exists below this card\n) -&gt; Any:  # Review card component\n    \"Render a single review card with text, timing, and source info.\"\ndef create_review_card_renderer(\n    audio_file_boundaries:Set[int]=None,  # Indices where audio_file_index changes\n) -&gt; Callable:  # Card renderer callback: (item, CardRenderContext) -&gt; FT\n    \"Create a card renderer callback for review cards.\"\n\n\nClasses\n@dataclass\nclass AssembledSegment:\n    \"A segment paired with its corresponding VAD chunk for review.\"\n    \n    segment: TextSegment  # Text segment with content and source info\n    vad_chunk: VADChunk  # VAD chunk with timing\n    \n    def index(self) -&gt; int:  # Segment index for card stack\n            \"\"\"Get the index from the segment.\"\"\"\n            return self.segment.index\n        \n        @property\n        def text(self) -&gt; str:  # Segment text content\n        \"Get the index from the segment.\"\n    \n    def text(self) -&gt; str:  # Segment text content\n            \"\"\"Get the text content from the segment.\"\"\"\n            return self.segment.text\n        \n        @property\n        def start_time(self) -&gt; float:  # Start time from VAD chunk\n        \"Get the text content from the segment.\"\n    \n    def start_time(self) -&gt; float:  # Start time from VAD chunk\n            \"\"\"Get the start time from the VAD chunk.\"\"\"\n            return self.vad_chunk.start_time\n        \n        @property\n        def end_time(self) -&gt; float:  # End time from VAD chunk\n        \"Get the start time from the VAD chunk.\"\n    \n    def end_time(self) -&gt; float:  # End time from VAD chunk\n        \"Get the end time from the VAD chunk.\"\n\n\n\nstep_renderer (step_renderer.ipynb)\n\nComposable render functions for the review card stack step\n\n\nImport\nfrom cjm_transcript_review.components.step_renderer import (\n    DEBUG_REVIEW_RENDER,\n    render_review_toolbar,\n    render_review_stats,\n    render_review_source_position,\n    render_review_keyboard_hints,\n    render_review_content,\n    render_review_footer,\n    render_review_step\n)\n\n\nFunctions\ndef render_review_toolbar(\n    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Current visible card count\n    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode\n    playback_speed:float=1.0,  # Current playback speed\n    auto_navigate:bool=False,  # Whether auto-navigate is enabled\n    document_title:str=\"\",  # Current document title\n    urls:ReviewUrls=None,  # URL bundle for audio control routes\n    oob:bool=False,  # Whether to render as OOB swap\n) -&gt; Any:  # Toolbar component\n    \"Render the review toolbar with title input, audio controls, and card count selector.\"\ndef render_review_stats(\n    assembled:List[AssembledSegment],  # Assembled segments\n    oob:bool=False,  # Whether to render as OOB swap\n) -&gt; Any:  # Statistics component\n    \"Render review statistics.\"\ndef render_review_source_position(\n    assembled:List[AssembledSegment],  # Assembled segments\n    focused_index:int=0,  # Currently focused segment index\n    oob:bool=False,  # Whether to render as OOB swap\n) -&gt; Any:  # Audio file position indicator (empty if single file)\n    \"Render audio file position indicator for the focused segment.\"\ndef render_review_keyboard_hints(\n    oob:bool=False,  # Whether to render as OOB swap\n) -&gt; Any:  # Collapsible keyboard hints component\n    \"Render keyboard shortcut hints in a collapsible container.\"\ndef render_review_content(\n    assembled:List[AssembledSegment],  # Assembled segments to display\n    focused_index:int,  # Currently focused segment index\n    visible_count:int,  # Number of visible cards in viewport\n    card_width:int,  # Card stack width in rem\n    urls:ReviewUrls,  # URL bundle for review routes\n    audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API\n) -&gt; Any:  # Main content area\n    \"Render the review content area with card stack viewport and keyboard system.\"\ndef render_review_footer(\n    assembled:List[AssembledSegment],  # Assembled segments\n    focused_index:int,  # Currently focused segment index\n) -&gt; Any:  # Footer content with progress indicator, source position, and stats\n    \"Render footer content with progress indicator, source position, and statistics.\"\ndef render_review_step(\n    assembled:List[AssembledSegment],  # Assembled segments to display\n    focused_index:int=0,  # Currently focused segment index\n    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Number of visible cards\n    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode\n    card_width:int=DEFAULT_CARD_WIDTH,  # Card stack width in rem\n    playback_speed:float=1.0,  # Current playback speed\n    auto_navigate:bool=False,  # Whether auto-navigate is enabled\n    document_title:str=\"\",  # Current document title\n    urls:ReviewUrls=None,  # URL bundle for review routes\n    audio_urls:Optional[List[str]]=None,  # Audio file URLs for Web Audio API\n) -&gt; Any:  # Complete review step component\n    \"Render the complete review step with toolbar, content, and footer.\"\n\n\nVariables\nDEBUG_REVIEW_RENDER = False\n\n\n\nutils (utils.ipynb)\n\nTime formatting and source info display utilities for review cards\n\n\nImport\nfrom cjm_transcript_review.utils import (\n    format_time,\n    format_duration,\n    truncate_id,\n    format_char_range,\n    format_source_info,\n    generate_document_title\n)\n\n\nFunctions\ndef format_time(\n    seconds:Optional[float]  # Time in seconds\n) -&gt; str:  # Formatted time string (m:ss.s)\n    \"Format seconds as m:ss.s for sub-second display.\"\ndef format_duration(\n    start:Optional[float],  # Start time in seconds\n    end:Optional[float],  # End time in seconds\n) -&gt; str:  # Formatted duration string (e.g., \"3.2s\")\n    \"Format duration from start/end times.\"\ndef truncate_id(\n    id_str:Optional[str],  # Full ID string\n    length:int=8,  # Number of characters to keep\n) -&gt; str:  # Truncated ID with ellipsis if needed\n    \"Truncate an ID string for display, adding ellipsis if truncated.\"\ndef format_char_range(\n    start_char:Optional[int],  # Start character index\n    end_char:Optional[int],  # End character index\n) -&gt; str:  # Formatted range string (e.g., \"char:25-68\")\n    \"Format character range for source reference display.\"\ndef format_source_info(\n    provider_id:Optional[str],  # Source provider identifier\n    source_id:Optional[str],  # Source record ID\n    start_char:Optional[int]=None,  # Start character index\n    end_char:Optional[int]=None,  # End character index\n) -&gt; str:  # Formatted source info string\n    \"Format source info for display in review cards.\"\ndef generate_document_title(\n    media_path:Optional[str],  # Path to media file\n    default:str=\"Untitled Document\",  # Fallback title if path is None\n) -&gt; str:  # Clean document title\n    \"Generate a document title from a media file path.\"",
+    "crumbs": [
+      "cjm-transcript-review"
+    ]
+  }
+]
