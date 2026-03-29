@@ -4,18 +4,15 @@
 
 # %% auto #0
 __all__ = ['DEBUG_REVIEW_RENDER', 'render_review_toolbar', 'render_review_stats', 'render_review_source_position',
-           'render_review_keyboard_hints', 'render_review_content', 'render_review_footer', 'render_review_step']
+           'render_review_content', 'render_review_footer', 'render_review_step']
 
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-imports
 from typing import Any, List, Optional
 
-from fasthtml.common import Div, Span, Input, Label, Details, Summary
+from fasthtml.common import Div, Span, Input, Label, H2, P
 
 # DaisyUI components
 from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui, bg_dui
-from cjm_fasthtml_daisyui.components.data_display.collapse import (
-    collapse, collapse_title, collapse_content, collapse_modifiers
-)
 from cjm_fasthtml_daisyui.components.data_input.text_input import text_input, text_input_sizes
 
 # Tailwind utilities
@@ -30,7 +27,7 @@ from cjm_fasthtml_tailwind.core.base import combine_classes
 
 # Keyboard navigation
 from cjm_fasthtml_keyboard_navigation.components.system import render_keyboard_system
-from cjm_fasthtml_keyboard_navigation.components.hints import render_keyboard_hints
+from cjm_fasthtml_keyboard_navigation.components.hints_modal import render_keyboard_hints_modal
 
 # Card stack library
 from cjm_fasthtml_card_stack.components.viewport import render_viewport
@@ -178,41 +175,6 @@ def render_review_source_position(
         hx_swap_oob="true" if oob else None,
     )
 
-# %% ../../nbs/components/step_renderer.ipynb #bg7siauxclw
-def render_review_keyboard_hints(
-    oob:bool=False,  # Whether to render as OOB swap
-) -> Any:  # Collapsible keyboard hints component
-    """Render keyboard shortcut hints in a collapsible container."""
-    # Create keyboard manager to extract hints
-    kb_manager = create_review_keyboard_manager(
-        ids=REVIEW_CS_IDS,
-        button_ids=REVIEW_CS_BTN_IDS,
-        config=REVIEW_CS_CONFIG,
-    )
-    
-    hints = render_keyboard_hints(
-        kb_manager,
-        include_navigation=True,
-        include_zone_switch=False,  # Single zone, no switching
-        badge_style="outline",
-        container_id="review-kb-hints",
-        use_icons=False
-    )
-    
-    return Details(
-        Summary(
-            "Keyboard Shortcuts",
-            cls=combine_classes(collapse_title, font_size.sm, font_weight.medium)
-        ),
-        Div(
-            hints,
-            cls=collapse_content
-        ),
-        id=ReviewHtmlIds.KEYBOARD_HINTS,
-        cls=combine_classes(collapse, collapse_modifiers.arrow, bg_dui.base_200),
-        hx_swap_oob="true" if oob else None
-    )
-
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-body
 def render_review_content(
     assembled:List[AssembledSegment],  # Assembled segments to display
@@ -346,11 +308,31 @@ def render_review_step(
 ) -> Any:  # Complete review step component
     """Render the complete review step with toolbar, content, and footer."""
     urls = urls or ReviewUrls()
-    
+
+    # Keyboard hints modal
+    kb_manager = create_review_keyboard_manager(
+        ids=REVIEW_CS_IDS,
+        button_ids=REVIEW_CS_BTN_IDS,
+        config=REVIEW_CS_CONFIG,
+    )
+    hints_modal, hints_trigger, hints_script = render_keyboard_hints_modal(
+        kb_manager, include_zone_switch=False,
+    )
+
     return Div(
-        # Keyboard hints (collapsible)
-        render_review_keyboard_hints(),
-        
+        # Header with keyboard hints trigger
+        Div(
+            Div(
+                H2("Review & Commit", cls=combine_classes(font_size._3xl, font_weight.bold)),
+                P(
+                    "Verify segments and commit to context graph.",
+                    cls=combine_classes(text_dui.base_content.opacity(70))
+                ),
+            ),
+            hints_trigger,
+            cls=combine_classes(flex_display, items.start, justify.between)
+        ),
+
         # Toolbar with title input and audio controls
         render_review_toolbar(
             visible_count, is_auto_mode,
@@ -370,7 +352,11 @@ def render_review_step(
         
         # Footer
         render_review_footer(assembled, focused_index),
-        
+
+        # Keyboard hints modal + ? key listener
+        hints_modal,
+        hints_script,
+
         id=ReviewHtmlIds.REVIEW_CONTAINER,
         cls=combine_classes(
             flex_display, flex_direction.col, gap(4),

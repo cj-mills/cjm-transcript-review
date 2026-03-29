@@ -73,8 +73,10 @@ from cjm_transcript_review.components.card_stack_config import (
 from cjm_transcript_review.components.review_card import AssembledSegment
 from cjm_transcript_review.components.step_renderer import (
     render_review_step, render_review_toolbar, render_review_footer,
-    render_review_content, render_review_stats, render_review_keyboard_hints,
+    render_review_content, render_review_stats,
 )
+from cjm_transcript_review.components.keyboard_config import create_review_keyboard_manager
+from cjm_fasthtml_keyboard_navigation.components.hints_modal import render_keyboard_hints_modal
 from cjm_transcript_review.routes.init import init_review_routers
 from cjm_transcript_review.routes.core import (
     _load_review_context, _get_assembled_segments, _update_review_state,
@@ -95,7 +97,6 @@ class DemoHtmlIds:
     SHARED_FOOTER = "review-demo-footer"
     MINI_STATS = "review-demo-mini-stats"
     KEYBOARD_SYSTEM = "review-demo-kb-system"
-    SHARED_HINTS = "review-demo-hints"
     COMMIT_ALERT_CONTAINER = "commit-alert-container"
 
 
@@ -231,13 +232,6 @@ def create_demo_init_handler(
             hx_swap_oob="innerHTML"
         )
 
-        # Hints OOB (use library's hints function)
-        hints_oob = Div(
-            render_review_keyboard_hints(),
-            id=DemoHtmlIds.SHARED_HINTS,
-            hx_swap_oob="innerHTML"
-        )
-
         # Mini-stats badge
         total = len(assembled)
         total_dur = sum(a.vad_chunk.duration for a in assembled)
@@ -248,7 +242,7 @@ def create_demo_init_handler(
             hx_swap_oob="true",
         )
 
-        return (content, toolbar_oob, controls_oob, footer_oob, hints_oob, mini_stats_oob)
+        return (content, toolbar_oob, controls_oob, footer_oob, mini_stats_oob)
 
     return init_handler
 
@@ -321,14 +315,17 @@ def render_demo_page(
             cls=column_cls
         )
 
-        # Placeholder chrome
-        hints = Div(
-            P("Keyboard hints will appear here after initialization.",
-              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
-            id=DemoHtmlIds.SHARED_HINTS,
-            cls=str(p(2))
+        # Keyboard hints modal
+        kb_manager = create_review_keyboard_manager(
+            ids=REVIEW_CS_IDS,
+            button_ids=REVIEW_CS_BTN_IDS,
+            config=REVIEW_CS_CONFIG,
+        )
+        hints_modal, hints_trigger, hints_script = render_keyboard_hints_modal(
+            kb_manager, include_zone_switch=False,
         )
 
+        # Placeholder chrome
         toolbar = Div(
             P("Toolbar will appear here after initialization.",
               cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
@@ -369,23 +366,28 @@ def render_demo_page(
         alert_container = Div(id=DemoHtmlIds.COMMIT_ALERT_CONTAINER)
 
         return Div(
-            # Header with commit button
+            # Header with commit button and keyboard hints trigger
             Div(
-                H1("Review Demo",
-                   cls=combine_classes(font_size._3xl, font_weight.bold)),
-                commit_button,
-                cls=combine_classes(flex_display, justify.between, items.center)
-            ),
-            P(
-                "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
-                cls=combine_classes(text_dui.base_content.opacity(70), m.b(2))
+                Div(
+                    H1("Review Demo",
+                       cls=combine_classes(font_size._3xl, font_weight.bold)),
+                    P(
+                        "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
+                        cls=combine_classes(text_dui.base_content.opacity(70))
+                    ),
+                ),
+                Div(
+                    hints_trigger,
+                    commit_button,
+                    cls=combine_classes(flex_display, items.center, gap(2)),
+                ),
+                cls=combine_classes(flex_display, justify.between, items.start, m.b(2))
             ),
 
             # Alert container (for commit feedback)
             alert_container,
 
             # Shared chrome
-            hints,
             toolbar,
             controls,
 
@@ -404,6 +406,10 @@ def render_demo_page(
 
             # Footer
             footer,
+
+            # Keyboard hints modal + ? key listener
+            hints_modal,
+            hints_script,
 
             id=DemoHtmlIds.CONTAINER,
             cls=combine_classes(

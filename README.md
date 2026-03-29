@@ -58,30 +58,30 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> models
     components_step_renderer --> components_review_card
     components_step_renderer --> components_card_stack_config
-    components_step_renderer --> models
-    components_step_renderer --> components_callbacks
     components_step_renderer --> html_ids
-    components_step_renderer --> components_keyboard_config
     components_step_renderer --> components_audio_controls
-    routes_audio --> routes_core
+    components_step_renderer --> components_keyboard_config
     routes_audio --> models
+    routes_audio --> routes_core
+    routes_card_stack --> models
     routes_card_stack --> routes_core
+    routes_card_stack --> components_step_renderer
     routes_card_stack --> components_review_card
     routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_step_renderer
-    routes_card_stack --> models
-    routes_commit --> routes_core
-    routes_commit --> utils
     routes_commit --> models
+    routes_commit --> utils
+    routes_commit --> routes_core
     routes_commit --> services_graph
     routes_core --> components_review_card
     routes_core --> models
     routes_init --> routes_core
     routes_init --> routes_commit
-    routes_init --> routes_card_stack
     routes_init --> models
+    routes_init --> routes_card_stack
     routes_init --> routes_audio
     routes_init --> services_graph
 ```
@@ -894,7 +894,6 @@ from cjm_transcript_review.components.step_renderer import (
     render_review_toolbar,
     render_review_stats,
     render_review_source_position,
-    render_review_keyboard_hints,
     render_review_content,
     render_review_footer,
     render_review_step
@@ -931,13 +930,6 @@ def render_review_source_position(
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Audio file position indicator (empty if single file)
     "Render audio file position indicator for the focused segment."
-```
-
-``` python
-def render_review_keyboard_hints(
-    oob:bool=False,  # Whether to render as OOB swap
-) -> Any:  # Collapsible keyboard hints component
-    "Render keyboard shortcut hints in a collapsible container."
 ```
 
 ``` python
