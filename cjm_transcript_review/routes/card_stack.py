@@ -14,7 +14,8 @@ from cjm_fasthtml_card_stack.core.models import CardStackState, CardStackUrls
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_CARD_WIDTH
 from cjm_fasthtml_card_stack.routes.handlers import (
     build_slots_response, build_nav_response,
-    card_stack_navigate, card_stack_update_viewport, card_stack_save_width,
+    card_stack_navigate, card_stack_navigate_to_index,
+    card_stack_update_viewport, card_stack_save_width,
 )
 
 from cjm_fasthtml_interactions.core.state_store import get_session_id
@@ -91,6 +92,44 @@ def _handle_review_navigate(
     
     result = card_stack_navigate(
         direction=direction,
+        card_items=assembled,
+        state=state,
+        config=REVIEW_CS_CONFIG,
+        ids=REVIEW_CS_IDS,
+        urls=urls.card_stack,
+        render_card=renderer,
+        progress_label="Segment",
+        form_input_name="segment_index",
+    )
+    
+    _update_review_state(state_store, workflow_id, session_id, focused_index=state.focused_index)
+    
+    # Append source position OOB if multiple audio files
+    if get_audio_file_count(chunks) > 1:
+        source_pos_oob = render_review_source_position(assembled, state.focused_index, oob=True)
+        return (*result, source_pos_oob)
+    return result
+
+# %% ../../nbs/routes/card_stack.ipynb #s7xgycjuw3i
+def _handle_review_navigate_to_index(
+    state_store:WorkflowStateStore,  # The workflow state store
+    workflow_id:str,  # The workflow identifier
+    sess,  # FastHTML session object
+    target_index:int,  # Target item index to navigate to
+    urls:ReviewUrls,  # URL bundle for review routes
+):  # OOB slot updates with progress, focus, and source position
+    """Navigate to a specific segment index using OOB slot swaps."""
+    session_id = get_session_id(sess)
+    ctx = _load_review_context(state_store, workflow_id, session_id)
+    assembled = _get_assembled_segments(ctx)
+    chunks = [a.vad_chunk for a in assembled]
+    boundaries = get_audio_file_boundaries(chunks)
+    
+    state = _build_card_stack_state(ctx)
+    renderer = create_review_card_renderer(audio_file_boundaries=boundaries)
+    
+    result = card_stack_navigate_to_index(
+        target_index=target_index,
         card_items=assembled,
         state=state,
         config=REVIEW_CS_CONFIG,
@@ -209,6 +248,11 @@ def init_card_stack_router(
         """Navigate down by page."""
         return _handle_review_navigate(state_store, workflow_id, sess, direction="page_down", urls=urls)
 
+    @router
+    def nav_to_index(request, sess, target_index: int):
+        """Navigate to a specific segment index."""
+        return _handle_review_navigate_to_index(state_store, workflow_id, sess, target_index=target_index, urls=urls)
+
     # -------------------------------------------------------------------------
     # Viewport and Width
     # -------------------------------------------------------------------------
@@ -236,6 +280,7 @@ def init_card_stack_router(
         "nav_last": nav_last,
         "nav_page_up": nav_page_up,
         "nav_page_down": nav_page_down,
+        "nav_to_index": nav_to_index,
         "update_viewport": update_viewport,
         "save_width": save_width,
     }
