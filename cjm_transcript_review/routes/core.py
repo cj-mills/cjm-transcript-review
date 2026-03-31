@@ -99,7 +99,7 @@ def _load_review_context(
         is_auto_mode=review_state.get("is_auto_mode", False),
         card_width=review_state.get("card_width", DEFAULT_CARD_WIDTH),
         playback_speed=review_state.get("playback_speed", 1.0),
-        auto_navigate=review_state.get("auto_navigate", False),
+        auto_navigate=False,  # Always start off — JS state resets on each render
     )
 
 # %% ../../nbs/routes/core.ipynb #review-core-assembled

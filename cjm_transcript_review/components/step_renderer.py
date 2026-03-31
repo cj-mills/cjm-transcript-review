@@ -106,7 +106,6 @@ def render_review_toolbar(
             current_speed=playback_speed,
             auto_navigate=auto_navigate,
             speed_url=urls.speed_change,
-            auto_nav_url=urls.toggle_auto_nav,
         ),
 
         # Right: Card count selector

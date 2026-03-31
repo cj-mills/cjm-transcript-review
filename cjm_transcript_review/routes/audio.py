@@ -87,9 +87,7 @@ def init_audio_router(
     
     @router.post("/toggle_auto_nav")
     async def toggle_auto_nav(request, sess):
-        """Handle auto-navigate toggle."""
-        session_id = get_session_id(sess)
-        
+        """Handle auto-navigate toggle (client-side only, no state persistence)."""
         # Checkbox only sends value when checked
         form_data = await request.form()
         auto_navigate = "auto_navigate" in form_data
@@ -97,13 +95,8 @@ def init_audio_router(
         if DEBUG_AUDIO_ROUTES:
             print(f"[AUDIO_ROUTES] toggle_auto_nav: {auto_navigate}")
         
-        # Update state
-        _update_review_state(
-            state_store, workflow_id, session_id,
-            auto_navigate=auto_navigate
-        )
-        
-        # Return JS to update client-side flag
+        # Return JS to update client-side flag (no server persistence —
+        # auto-play is transient, resets on step navigation / page refresh)
         return Script(_generate_auto_nav_js(auto_navigate))
     
     routes["toggle_auto_nav"] = toggle_auto_nav
