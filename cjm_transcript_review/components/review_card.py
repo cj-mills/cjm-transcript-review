@@ -8,12 +8,13 @@ __all__ = ['AssembledSegment', 'render_review_card', 'create_review_card_rendere
 # %% ../../nbs/components/review_card.ipynb #review-card-imports
 from typing import Any, Callable, Optional, Set
 
-from fasthtml.common import Div, Span, P
+from fasthtml.common import Button, Div, Span, P
 
 # DaisyUI components
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles
 from cjm_fasthtml_daisyui.components.data_display.card import card, card_body
 from cjm_fasthtml_daisyui.components.feedback.loading import loading, loading_styles, loading_sizes
+from cjm_fasthtml_daisyui.components.actions.button import btn, btn_sizes, btn_colors, btn_behaviors, btn_modifiers
 from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui, border_dui
 
 # Tailwind utilities
@@ -31,6 +32,9 @@ from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import (
     flex_display, flex_direction, items, justify, gap, grow, shrink
 )
 from cjm_fasthtml_tailwind.core.base import combine_classes
+
+# Icons
+from cjm_fasthtml_lucide_icons.factory import lucide_icon
 
 # Card stack library
 from cjm_fasthtml_card_stack.core.constants import CardRole
@@ -81,7 +85,7 @@ def render_review_card(
     has_boundary_above:bool=False,  # Audio file boundary exists above this card
     has_boundary_below:bool=False,  # Audio file boundary exists below this card
 ) -> Any:  # Review card component
-    """Render a single review card with text, timing, and source info."""
+    """Render a single review card with text, timing, source info, playing indicator, and play button."""
     is_focused = card_role == "focused"
     is_context = card_role == "context"
     seg = assembled.segment
@@ -114,15 +118,27 @@ def render_review_card(
         cls=combine_classes(font_size.xs, font_family.mono, meta_opacity)
     )
     
-    # Playing indicator — hidden by default, toggled visible by JS during audio playback
+    # Playing indicator — inline next to index, hidden by default
     playing_indicator = Div(
         Span(cls=combine_classes(loading, loading_styles.bars, loading_sizes.xs, text_dui.secondary)),
-        cls=combine_classes(
-            "review-playing-indicator",
-            position.absolute, right(2), top("1/2"), translate.y("1/2").negative,
-            visibility.invisible,
-        )
+        cls="review-playing-indicator",
+        style="visibility:hidden;",
     )
+
+    # Play button — active on focused card, disabled on context cards
+    play_icon = lucide_icon("play", size=3)
+    if is_focused:
+        play_btn = Button(
+            play_icon,
+            cls=combine_classes(btn, btn_sizes.xs, btn_colors.primary, btn_modifiers.circle),
+            onclick="if(window.replayReviewSegment) window.replayReviewSegment();",
+        )
+    else:
+        play_btn = Button(
+            play_icon,
+            cls=combine_classes(btn, btn_sizes.xs, btn_behaviors.disabled, btn_modifiers.circle),
+            tabindex="-1",
+        )
     
     # Boundary borders only on non-focused cards
     boundary_cls = ""
@@ -134,17 +150,23 @@ def render_review_card(
     
     return Div(
         Div(
-            # Left column: Index and metadata
+            # Left column: Index + playing indicator (row), play button below (col)
             Div(
-                # Index badge
-                Span(
-                    f"#{seg.index + 1}",
-                    cls=combine_classes(
-                        font_size.xs, font_family.mono, font_weight.bold,
-                        opacity(50)
-                    )
+                # Index and playing indicator in a row
+                Div(
+                    Span(
+                        f"#{seg.index + 1}",
+                        cls=combine_classes(
+                            font_size.xs, font_family.mono, font_weight.bold,
+                            opacity(50)
+                        )
+                    ),
+                    playing_indicator,
+                    cls=combine_classes(flex_display, flex_direction.row, gap(1), items.center)
                 ),
-                cls=combine_classes(w(12), shrink(0))
+                # Play button
+                play_btn,
+                cls=combine_classes(w(12), shrink(0), flex_display, flex_direction.col, gap(2), items.center)
             ),
             
             # Center: Main content
@@ -174,9 +196,6 @@ def render_review_card(
                 flex_display, flex_direction.row, gap(3), items.start
             )
         ),
-        
-        # Absolutely positioned playing indicator
-        playing_indicator,
         
         id=ReviewHtmlIds.review_card(seg.index),
         cls=combine_classes(

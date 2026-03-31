@@ -51,8 +51,17 @@ def create_review_kb_parts(
         hint_group="Audio",
     )
 
+    # Auto-play toggle action — A key toggles auto-navigate, syncs checkbox + colors
+    auto_play_action = KeyAction(
+        key="a",
+        js_callback="toggleReviewAutoPlay",
+        zone_ids=(card_zone.id,),
+        description="Toggle auto-play",
+        hint_group="Audio",
+    )
+
     # Combine all actions
-    actions = nav_actions + (replay_action,)
+    actions = nav_actions + (replay_action, auto_play_action)
     modes = ()  # No sub-modes
 
     return card_zone, actions, modes

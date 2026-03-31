@@ -15,6 +15,10 @@ from cjm_fasthtml_card_stack.js.core import generate_card_stack_js
 from cjm_fasthtml_web_audio.models import WebAudioConfig
 from cjm_fasthtml_web_audio.js import generate_web_audio_js
 
+from cjm_transcript_review.components.audio_controls import (
+    AudioControlIds, _TOGGLE_BG_OFF, _TOGGLE_BG_ON,
+)
+
 # %% ../../nbs/components/callbacks.ipynb #cvj04t6vh8
 REVIEW_AUDIO_CONFIG = WebAudioConfig(
     namespace="review",
@@ -23,6 +27,20 @@ REVIEW_AUDIO_CONFIG = WebAudioConfig(
     enable_replay=True,
     enable_auto_nav=True,
 )
+
+# %% ../../nbs/components/callbacks.ipynb #jgt49orrxm
+def _generate_toggle_auto_play_js() -> str:  # JS defining window.toggleReviewAutoPlay
+    """Generate JS for the A key auto-play toggle function."""
+    tid = AudioControlIds.AUTO_NAV_TOGGLE
+    return f"""
+    window.toggleReviewAutoPlay = function() {{
+        var _t = document.getElementById('{tid}');
+        if (!_t || !window.setReviewAutoNavigate) return;
+        _t.checked = !_t.checked;
+        window.setReviewAutoNavigate(_t.checked);
+        _t.classList.remove('{_TOGGLE_BG_OFF}', '{_TOGGLE_BG_ON}');
+        _t.classList.add(_t.checked ? '{_TOGGLE_BG_ON}' : '{_TOGGLE_BG_OFF}');
+    }};"""
 
 # %% ../../nbs/components/callbacks.ipynb #review-cb-gen
 def generate_review_callbacks_script(
@@ -41,11 +59,14 @@ def generate_review_callbacks_script(
         nav_down_btn_id=button_ids.nav_down,
     )
 
+    # Auto-play toggle function for A key
+    toggle_js = _generate_toggle_auto_play_js()
+
     return generate_card_stack_js(
         ids=ids,
         button_ids=button_ids,
         config=config,
         urls=urls,
         container_id=container_id,
-        extra_scripts=(web_audio_js,),
+        extra_scripts=(web_audio_js, toggle_js),
     )

@@ -13,7 +13,7 @@ from fasthtml.common import Div, Span, Select, Option, Input, Label
 # DaisyUI components
 from cjm_fasthtml_daisyui.components.data_input.select import select, select_sizes
 from cjm_fasthtml_daisyui.components.data_input.toggle import toggle, toggle_sizes
-from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui
+from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui, bg_dui
 
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import m
@@ -86,6 +86,18 @@ def render_speed_selector(
     )
 
 # %% ../../nbs/components/audio_controls.ipynb #audio-ctrl-autonav-comp
+# CSS classes for toggle state coloring
+_TOGGLE_BG_OFF = str(bg_dui.error)    # Red when auto-play disabled
+_TOGGLE_BG_ON = str(bg_dui.success)   # Green when auto-play enabled
+
+def _toggle_color_js(toggle_id:str) -> str:  # JS snippet to sync toggle color classes
+    """Generate JS to swap bg-error/bg-success on the toggle based on checked state."""
+    return (
+        f"var _t=document.getElementById('{toggle_id}');"
+        f"if(_t){{_t.classList.remove('{_TOGGLE_BG_OFF}','{_TOGGLE_BG_ON}');"
+        f"_t.classList.add(_t.checked?'{_TOGGLE_BG_ON}':'{_TOGGLE_BG_OFF}');}}"
+    )
+
 def render_auto_navigate_toggle(
     enabled:bool=False,  # Whether auto-navigate is enabled
     toggle_url:str="",  # URL to POST toggle changes to
@@ -100,8 +112,14 @@ def render_auto_navigate_toggle(
             "hx_swap": "none",
         }
     
-    # Client-side JS to update auto-navigate flag immediately via web audio library
-    onchange_js = "if(window.setReviewAutoNavigate) window.setReviewAutoNavigate(this.checked);"
+    # Client-side JS to update auto-navigate flag + sync colors
+    toggle_id = AudioControlIds.AUTO_NAV_TOGGLE
+    color_js = _toggle_color_js(toggle_id)
+    onchange_js = f"if(window.setReviewAutoNavigate) window.setReviewAutoNavigate(this.checked);{color_js}"
+
+    # Only pass checked when enabled
+    check_attr = {"checked": True} if enabled else {}
+    color_cls = _TOGGLE_BG_ON if enabled else _TOGGLE_BG_OFF
     
     return Div(
         Label(
@@ -111,11 +129,11 @@ def render_auto_navigate_toggle(
             ),
             Input(
                 type="checkbox",
-                id=AudioControlIds.AUTO_NAV_TOGGLE,
+                id=toggle_id,
                 name="auto_navigate",
-                checked=enabled,
-                cls=combine_classes(toggle, toggle_sizes.sm),
+                cls=combine_classes(toggle, toggle_sizes.sm, color_cls),
                 onchange=onchange_js,
+                **check_attr,
                 **htmx_attrs,
             ),
             cls=combine_classes(flex_display, items.center)

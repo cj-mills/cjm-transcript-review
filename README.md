@@ -55,38 +55,39 @@ graph LR
     services_graph[services.graph<br/>graph]
     utils[utils<br/>utils]
 
+    components_callbacks --> components_audio_controls
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_card_stack_config
     components_step_renderer --> components_keyboard_config
-    components_step_renderer --> components_review_card
-    components_step_renderer --> models
     components_step_renderer --> components_callbacks
-    components_step_renderer --> html_ids
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> components_audio_controls
+    components_step_renderer --> html_ids
+    components_step_renderer --> models
+    components_step_renderer --> components_review_card
     routes_audio --> models
     routes_audio --> routes_core
-    routes_card_stack --> routes_core
     routes_card_stack --> components_card_stack_config
-    routes_card_stack --> components_review_card
+    routes_card_stack --> routes_core
     routes_card_stack --> models
+    routes_card_stack --> components_review_card
     routes_card_stack --> components_step_renderer
     routes_commit --> routes_core
-    routes_commit --> utils
     routes_commit --> services_graph
     routes_commit --> models
-    routes_core --> components_review_card
+    routes_commit --> utils
     routes_core --> models
+    routes_core --> components_review_card
+    routes_init --> services_graph
     routes_init --> models
     routes_init --> routes_core
-    routes_init --> routes_commit
     routes_init --> routes_audio
-    routes_init --> services_graph
+    routes_init --> routes_commit
     routes_init --> routes_card_stack
 ```
 
-*29 cross-module dependencies detected*
+*30 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -173,6 +174,22 @@ def render_speed_selector(
 ```
 
 ``` python
+def _toggle_color_js(toggle_id:str) -> str:  # JS snippet to sync toggle color classes
+    """Generate JS to swap bg-error/bg-success on the toggle based on checked state."""
+    return (
+        f"var _t=document.getElementById('{toggle_id}');"
+        f"if(_t){{_t.classList.remove('{_TOGGLE_BG_OFF}','{_TOGGLE_BG_ON}');"
+        f"_t.classList.add(_t.checked?'{_TOGGLE_BG_ON}':'{_TOGGLE_BG_OFF}');}}"
+    )
+
+def render_auto_navigate_toggle(
+    enabled:bool=False,  # Whether auto-navigate is enabled
+    toggle_url:str="",  # URL to POST toggle changes to
+) -> Any:  # Auto-navigate toggle component
+    "Generate JS to swap bg-error/bg-success on the toggle based on checked state."
+```
+
+``` python
 def render_auto_navigate_toggle(
     enabled:bool=False,  # Whether auto-navigate is enabled
     toggle_url:str="",  # URL to POST toggle changes to
@@ -202,6 +219,8 @@ class AudioControlIds:
 
 ``` python
 PLAYBACK_SPEEDS: List[tuple]
+_TOGGLE_BG_OFF  # Red when auto-play disabled
+_TOGGLE_BG_ON  # Green when auto-play enabled
 ```
 
 ### callbacks (`callbacks.ipynb`)
@@ -219,6 +238,11 @@ from cjm_transcript_review.components.callbacks import (
 ```
 
 #### Functions
+
+``` python
+def _generate_toggle_auto_play_js() -> str:  # JS defining window.toggleReviewAutoPlay
+    "Generate JS for the A key auto-play toggle function."
+```
 
 ``` python
 def generate_review_callbacks_script(
@@ -845,7 +869,7 @@ def render_review_card(
     has_boundary_above:bool=False,  # Audio file boundary exists above this card
     has_boundary_below:bool=False,  # Audio file boundary exists below this card
 ) -> Any:  # Review card component
-    "Render a single review card with text, timing, and source info."
+    "Render a single review card with text, timing, source info, playing indicator, and play button."
 ```
 
 ``` python
