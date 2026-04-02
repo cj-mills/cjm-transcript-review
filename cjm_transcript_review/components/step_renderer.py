@@ -31,7 +31,7 @@ from cjm_fasthtml_keyboard_navigation.components.hints_modal import render_keybo
 
 # Card stack library
 from cjm_fasthtml_card_stack.components.viewport import render_viewport
-from cjm_fasthtml_card_stack.components.controls import render_card_count_select, render_width_slider
+from cjm_fasthtml_card_stack.components.settings_modal import render_card_stack_settings_modal
 from cjm_fasthtml_card_stack.components.progress import render_progress_indicator
 from cjm_fasthtml_card_stack.core.models import CardStackState
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
@@ -69,15 +69,13 @@ DEBUG_REVIEW_RENDER = False
 
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-toolbar
 def render_review_toolbar(
-    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Current visible card count
-    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
     document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for audio control routes
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Toolbar component
-    """Render the review toolbar with title input, audio controls, and card count selector."""
+    """Render the review toolbar with title input and audio controls."""
     urls = urls or ReviewUrls()
     
     return Div(
@@ -101,25 +99,11 @@ def render_review_toolbar(
             cls=combine_classes(flex_display, items.center, grow())
         ),
         
-        # Center: Audio controls (speed + auto-navigate)
+        # Right: Audio controls (speed + auto-navigate)
         render_audio_controls(
             current_speed=playback_speed,
             auto_navigate=auto_navigate,
             speed_url=urls.speed_change,
-        ),
-
-        # Right: Card count selector
-        Div(
-            Span(
-                "Cards:",
-                cls=combine_classes(font_size.sm, text_dui.base_content.opacity(70), m.r(2))
-            ),
-            render_card_count_select(
-                REVIEW_CS_CONFIG, REVIEW_CS_IDS,
-                current_count=visible_count,
-                is_auto_mode=is_auto_mode,
-            ),
-            cls=combine_classes(flex_display, items.center)
         ),
 
         id=ReviewHtmlIds.REVIEW_TOOLBAR,
@@ -318,6 +302,14 @@ def render_review_step(
         kb_manager, include_zone_switch=False,
     )
 
+    # Settings modal
+    settings_modal, settings_trigger = render_card_stack_settings_modal(
+        REVIEW_CS_CONFIG, REVIEW_CS_IDS,
+        current_count=visible_count,
+        is_auto_mode=is_auto_mode,
+        card_width=card_width,
+    )
+
     return Div(
         # Header with keyboard hints trigger
         Div(
@@ -328,21 +320,21 @@ def render_review_step(
                     cls=combine_classes(text_dui.base_content.opacity(70))
                 ),
             ),
-            hints_trigger,
+            Div(
+                settings_trigger,
+                hints_trigger,
+                cls=combine_classes(flex_display, items.center, gap(2)),
+            ),
             cls=combine_classes(flex_display, items.start, justify.between)
         ),
 
         # Toolbar with title input and audio controls
         render_review_toolbar(
-            visible_count, is_auto_mode,
             playback_speed=playback_speed,
             auto_navigate=auto_navigate,
             document_title=document_title,
             urls=urls,
         ),
-        
-        # Width slider
-        render_width_slider(REVIEW_CS_CONFIG, REVIEW_CS_IDS, card_width=card_width),
         
         # Main content area (includes keyboard system internally)
         render_review_content(
@@ -351,6 +343,9 @@ def render_review_step(
         
         # Footer
         render_review_footer(assembled, focused_index),
+
+        # Settings modal dialog
+        settings_modal,
 
         # Keyboard hints modal + ? key listener
         hints_modal,

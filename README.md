@@ -59,32 +59,32 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_callbacks
-    components_step_renderer --> components_review_card
     components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_keyboard_config
     components_step_renderer --> models
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> components_keyboard_config
+    components_step_renderer --> components_review_card
     components_step_renderer --> components_audio_controls
     components_step_renderer --> html_ids
     routes_audio --> routes_core
     routes_audio --> models
+    routes_card_stack --> components_card_stack_config
+    routes_card_stack --> models
     routes_card_stack --> routes_core
     routes_card_stack --> components_step_renderer
     routes_card_stack --> components_review_card
-    routes_card_stack --> components_card_stack_config
-    routes_card_stack --> models
-    routes_commit --> routes_core
-    routes_commit --> utils
     routes_commit --> models
+    routes_commit --> utils
+    routes_commit --> routes_core
     routes_commit --> services_graph
     routes_core --> models
     routes_core --> components_review_card
-    routes_init --> routes_core
-    routes_init --> routes_audio
     routes_init --> services_graph
-    routes_init --> routes_commit
+    routes_init --> routes_audio
+    routes_init --> routes_core
     routes_init --> routes_card_stack
     routes_init --> models
+    routes_init --> routes_commit
 ```
 
 *30 cross-module dependencies detected*
@@ -936,15 +936,13 @@ from cjm_transcript_review.components.step_renderer import (
 
 ``` python
 def render_review_toolbar(
-    visible_count:int=DEFAULT_VISIBLE_COUNT,  # Current visible card count
-    is_auto_mode:bool=False,  # Whether card count is in auto-adjust mode
     playback_speed:float=1.0,  # Current playback speed
     auto_navigate:bool=False,  # Whether auto-navigate is enabled
     document_title:str="",  # Current document title
     urls:ReviewUrls=None,  # URL bundle for audio control routes
     oob:bool=False,  # Whether to render as OOB swap
 ) -> Any:  # Toolbar component
-    "Render the review toolbar with title input, audio controls, and card count selector."
+    "Render the review toolbar with title input and audio controls."
 ```
 
 ``` python

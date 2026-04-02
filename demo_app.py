@@ -52,7 +52,7 @@ from cjm_fasthtml_interactions.core.state_store import get_session_id
 from cjm_workflow_state.state_store import SQLiteWorkflowStateStore
 
 # Card stack library
-from cjm_fasthtml_card_stack.components.controls import render_width_slider
+from cjm_fasthtml_card_stack.components.settings_modal import render_card_stack_settings_modal
 from cjm_fasthtml_card_stack.components.states import render_loading_state
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
 
@@ -93,8 +93,8 @@ class DemoHtmlIds:
     COLUMN = "review-demo-column"
     COLUMN_HEADER = "review-demo-column-header"
     SHARED_TOOLBAR = "review-demo-toolbar"
-    SHARED_CONTROLS = "review-demo-controls"
     SHARED_FOOTER = "review-demo-footer"
+    SETTINGS_MODAL = "review-demo-settings-modal"
     MINI_STATS = "review-demo-mini-stats"
     KEYBOARD_SYSTEM = "review-demo-kb-system"
     COMMIT_ALERT_CONTAINER = "commit-alert-container"
@@ -208,10 +208,18 @@ def create_demo_init_handler(
             audio_urls=audio_urls,
         )
 
+        # Settings modal
+        settings_modal, settings_trigger = render_card_stack_settings_modal(
+            REVIEW_CS_CONFIG, REVIEW_CS_IDS,
+            current_count=ctx.visible_count,
+            is_auto_mode=ctx.is_auto_mode,
+            card_width=ctx.card_width,
+        )
+
         # OOB updates for chrome
         toolbar_oob = Div(
+            settings_trigger,
             render_review_toolbar(
-                ctx.visible_count, ctx.is_auto_mode,
                 playback_speed=ctx.playback_speed,
                 auto_navigate=ctx.auto_navigate,
                 urls=urls,
@@ -220,9 +228,9 @@ def create_demo_init_handler(
             hx_swap_oob="innerHTML"
         )
 
-        controls_oob = Div(
-            render_width_slider(REVIEW_CS_CONFIG, REVIEW_CS_IDS, card_width=ctx.card_width),
-            id=DemoHtmlIds.SHARED_CONTROLS,
+        settings_modal_oob = Div(
+            settings_modal,
+            id=DemoHtmlIds.SETTINGS_MODAL,
             hx_swap_oob="innerHTML"
         )
 
@@ -242,7 +250,7 @@ def create_demo_init_handler(
             hx_swap_oob="true",
         )
 
-        return (content, toolbar_oob, controls_oob, footer_oob, mini_stats_oob)
+        return (content, toolbar_oob, settings_modal_oob, footer_oob, mini_stats_oob)
 
     return init_handler
 
@@ -333,12 +341,8 @@ def render_demo_page(
             cls=str(p(2))
         )
 
-        controls = Div(
-            P("Width controls will appear here after initialization.",
-              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
-            id=DemoHtmlIds.SHARED_CONTROLS,
-            cls=str(p(2))
-        )
+        # Settings modal container (populated by init handler)
+        settings_modal_container = Div(id=DemoHtmlIds.SETTINGS_MODAL)
 
         footer = Div(
             P("Footer with progress will appear here after initialization.",
@@ -389,7 +393,6 @@ def render_demo_page(
 
             # Shared chrome
             toolbar,
-            controls,
 
             # Content area
             Div(
@@ -406,6 +409,9 @@ def render_demo_page(
 
             # Footer
             footer,
+
+            # Settings modal container
+            settings_modal_container,
 
             # Keyboard hints modal + ? key listener
             hints_modal,
