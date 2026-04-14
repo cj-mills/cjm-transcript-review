@@ -56,6 +56,9 @@ from cjm_fasthtml_card_stack.components.settings_modal import render_card_stack_
 from cjm_fasthtml_card_stack.components.states import render_loading_state
 from cjm_fasthtml_card_stack.core.constants import DEFAULT_VISIBLE_COUNT, DEFAULT_CARD_WIDTH
 
+# Web Audio library — static asset mount (SoundTouch worklet for pitch-preserving speed)
+from cjm_fasthtml_web_audio.components import mount_web_audio_static
+
 # Segmentation and alignment models
 from cjm_transcript_segmentation.models import TextSegment
 from cjm_transcript_vad_align.models import VADChunk
@@ -450,6 +453,9 @@ def main():
         session_cookie=f'session_{APP_ID}_',
         secret_key=f'{APP_ID}-demo-secret',
     )
+
+    # Mount vendored static assets (SoundTouch worklet for pitch-preserving speed)
+    mount_web_audio_static(app)
 
     router = APIRouter(prefix="")
 
