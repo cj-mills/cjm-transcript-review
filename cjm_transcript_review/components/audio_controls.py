@@ -21,6 +21,10 @@ from cjm_fasthtml_tailwind.utilities.typography import font_size
 from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import flex_display, items, gap
 from cjm_fasthtml_tailwind.core.base import combine_classes
 
+# Web Audio library — for initial speed sync helper
+from cjm_fasthtml_web_audio.models import WebAudioConfig
+from cjm_fasthtml_web_audio.components import render_initial_speed_sync
+
 # %% ../../nbs/components/audio_controls.ipynb #audio-ctrl-ids
 class AudioControlIds:
     """HTML ID constants for audio control elements."""
@@ -43,11 +47,25 @@ PLAYBACK_SPEEDS: List[tuple] = [
 ]
 
 # %% ../../nbs/components/audio_controls.ipynb #audio-ctrl-speed-comp
+# Config for render_initial_speed_sync — only `namespace` and `enable_speed` are read
+_SYNC_CONFIG = WebAudioConfig(
+    namespace="review",
+    indicator_selector="",
+    enable_speed=True,
+)
+
 def render_speed_selector(
     current_speed:float=1.0,  # Current playback speed
     change_url:str="",  # URL to POST speed changes to
-) -> Any:  # Speed selector component
-    """Render playback speed selector dropdown."""
+) -> Any:  # Speed selector component (select + sync script)
+    """Render playback speed selector dropdown.
+    
+    When `current_speed != 1.0`, also emits a sync <Script> that calls
+    `window.setReviewSpeed(current_speed)` after insertion. This works around
+    `generate_state_init` resetting `playbackSpeed` to 1.0 on every render —
+    without the sync, the dropdown visually restores the saved speed but the
+    JS state stays at 1.0 until the user interacts with the dropdown.
+    """
     options = [
         Option(
             label,
@@ -82,6 +100,8 @@ def render_speed_selector(
             onchange=onchange_js,
             **htmx_attrs,
         ),
+        # Sync JS state to current_speed (no-op when speed == 1.0)
+        render_initial_speed_sync(_SYNC_CONFIG, current_speed),
         cls=combine_classes(flex_display, items.center)
     )
 
