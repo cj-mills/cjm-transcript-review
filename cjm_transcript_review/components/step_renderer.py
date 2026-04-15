@@ -40,7 +40,7 @@ from cjm_fasthtml_card_stack.keyboard.actions import (
 )
 
 # Web Audio library
-from cjm_fasthtml_web_audio.components import render_audio_urls_input
+from cjm_fasthtml_web_audio.components import render_audio_urls_input, render_initial_speed_sync
 
 # VAD alignment utilities (for boundary detection across assembled segments)
 from cjm_transcript_vad_align.utils import (
@@ -310,6 +310,14 @@ def render_review_step(
         card_width=card_width,
     )
 
+    # Page-level initial-speed sync. Placed AFTER the content (which contains the
+    # web-audio script whose generate_state_init resets playbackSpeed to 1.0 on every
+    # re-execution). Needed because on HTMX step navigation, window.setReviewSpeed
+    # often already exists from a prior render, so the toolbar-embedded sync's IIFE
+    # fires setReviewSpeed(saved) BEFORE state_init overwrites it. A tail-of-DOM sync
+    # runs LAST — after state_init — and re-applies the persisted speed. No-op at 1.0x.
+    initial_speed_sync = render_initial_speed_sync(REVIEW_AUDIO_CONFIG, playback_speed)
+
     return Div(
         # Header with keyboard hints trigger
         Div(
@@ -335,12 +343,16 @@ def render_review_step(
             document_title=document_title,
             urls=urls,
         ),
-        
+
         # Main content area (includes keyboard system internally)
         render_review_content(
             assembled, focused_index, visible_count, card_width, urls, audio_urls,
         ),
-        
+
+        # Initial speed sync — MUST come after render_review_content so it runs
+        # after the web-audio script's generate_state_init on every (re-)render.
+        initial_speed_sync,
+
         # Footer
         render_review_footer(assembled, focused_index),
 
