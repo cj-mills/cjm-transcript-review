@@ -59,35 +59,36 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_keyboard_config
-    components_step_renderer --> html_ids
-    components_step_renderer --> components_review_card
-    components_step_renderer --> components_audio_controls
-    components_step_renderer --> models
-    components_step_renderer --> components_callbacks
     components_step_renderer --> components_card_stack_config
-    routes_audio --> models
+    components_step_renderer --> components_review_card
+    components_step_renderer --> html_ids
+    components_step_renderer --> components_callbacks
+    components_step_renderer --> models
+    components_step_renderer --> components_keyboard_config
+    components_step_renderer --> components_audio_controls
     routes_audio --> routes_core
+    routes_audio --> components_callbacks
+    routes_audio --> models
     routes_card_stack --> routes_core
+    routes_card_stack --> components_card_stack_config
     routes_card_stack --> components_review_card
     routes_card_stack --> models
-    routes_card_stack --> components_card_stack_config
     routes_card_stack --> components_step_renderer
-    routes_commit --> models
-    routes_commit --> utils
     routes_commit --> routes_core
     routes_commit --> services_graph
+    routes_commit --> models
+    routes_commit --> utils
     routes_core --> models
     routes_core --> components_review_card
+    routes_init --> services_graph
+    routes_init --> routes_audio
+    routes_init --> routes_core
     routes_init --> routes_card_stack
     routes_init --> models
-    routes_init --> routes_core
     routes_init --> routes_commit
-    routes_init --> routes_audio
-    routes_init --> services_graph
 ```
 
-*30 cross-module dependencies detected*
+*31 cross-module dependencies detected*
 
 ## CLI Reference
 
@@ -111,13 +112,6 @@ from cjm_transcript_review.routes.audio import (
 ```
 
 #### Functions
-
-``` python
-def _generate_speed_change_js(
-    speed:float  # New playback speed
-) -> str:  # JavaScript to update playback rate
-    "Generate JS to update Web Audio API playback rate via shared library."
-```
 
 ``` python
 def _generate_auto_nav_js(
@@ -155,31 +149,13 @@ DEBUG_AUDIO_ROUTES = False
 
 ``` python
 from cjm_transcript_review.components.audio_controls import (
-    PLAYBACK_SPEEDS,
     AudioControlIds,
-    render_speed_selector,
     render_auto_navigate_toggle,
     render_audio_controls
 )
 ```
 
 #### Functions
-
-``` python
-def render_speed_selector(
-    current_speed:float=1.0,  # Current playback speed
-    change_url:str="",  # URL to POST speed changes to
-) -> Any:  # Speed selector component (select + sync script)
-    """
-    Render playback speed selector dropdown.
-    
-    When `current_speed != 1.0`, also emits a sync <Script> that calls
-    `window.setReviewSpeed(current_speed)` after insertion. This works around
-    `generate_state_init` resetting `playbackSpeed` to 1.0 on every render —
-    without the sync, the dropdown visually restores the saved speed but the
-    JS state stays at 1.0 until the user interacts with the dropdown.
-    """
-```
 
 ``` python
 def _toggle_color_js(toggle_id:str) -> str:  # JS snippet to sync toggle color classes
@@ -223,8 +199,7 @@ class AudioControlIds:
 #### Variables
 
 ``` python
-PLAYBACK_SPEEDS: List[tuple]
-_SYNC_CONFIG
+_REVIEW_SPEED_CONFIG
 _TOGGLE_BG_OFF  # Red when auto-play disabled
 _TOGGLE_BG_ON  # Green when auto-play enabled
 ```

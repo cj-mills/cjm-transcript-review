@@ -41,7 +41,7 @@ def create_review_kb_parts(
         button_ids=button_ids,
         config=config,
     )
-    
+
     # Replay action — Space key to replay current segment's audio
     replay_action = KeyAction(
         key=" ",  # Space
@@ -60,8 +60,28 @@ def create_review_kb_parts(
         hint_group="Audio",
     )
 
+    # Playback speed cycle — Shift+ArrowUp/Down steps through PLAYBACK_SPEEDS.
+    # Delegates to cjm-fasthtml-web-audio's cycle{Ns}Speed{Up,Down} helpers, which
+    # update the shared <select>, JS playbackSpeed, and fire HTMX persistence in one go.
+    speed_up_action = KeyAction(
+        key="ArrowUp",
+        modifiers=frozenset({"shift"}),
+        js_callback="cycleReviewSpeedUp",
+        zone_ids=(card_zone.id,),
+        description="Speed up",
+        hint_group="Audio",
+    )
+    speed_down_action = KeyAction(
+        key="ArrowDown",
+        modifiers=frozenset({"shift"}),
+        js_callback="cycleReviewSpeedDown",
+        zone_ids=(card_zone.id,),
+        description="Slow down",
+        hint_group="Audio",
+    )
+
     # Combine all actions
-    actions = nav_actions + (replay_action, auto_play_action)
+    actions = nav_actions + (replay_action, auto_play_action, speed_up_action, speed_down_action)
     modes = ()  # No sub-modes
 
     return card_zone, actions, modes

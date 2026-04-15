@@ -12,25 +12,17 @@ from fasthtml.common import APIRouter, Script
 
 from cjm_fasthtml_interactions.core.state_store import get_session_id
 
+# Web Audio library — shared speed-change JS generator
+from cjm_fasthtml_web_audio.js import generate_speed_change_js
+
 from ..models import ReviewUrls
 from cjm_transcript_review.routes.core import (
     WorkflowStateStore, _update_review_state
 )
+from ..components.callbacks import REVIEW_AUDIO_CONFIG
 
 # Debug flag
 DEBUG_AUDIO_ROUTES = False
-
-# %% ../../nbs/routes/audio.ipynb #audio-routes-speed
-def _generate_speed_change_js(
-    speed:float  # New playback speed
-) -> str:  # JavaScript to update playback rate
-    """Generate JS to update Web Audio API playback rate via shared library."""
-    return f"""
-        if (window.setReviewSpeed) window.setReviewSpeed({speed});
-        if (window.DEBUG_REVIEW_AUDIO) {{
-            console.log('[REVIEW_AUDIO] Playback speed changed to:', {speed});
-        }}
-    """
 
 # %% ../../nbs/routes/audio.ipynb #audio-routes-autonav
 def _generate_auto_nav_js(
@@ -66,50 +58,50 @@ def init_audio_router(
     """Initialize audio control routes."""
     router = APIRouter(prefix=prefix)
     routes = {}
-    
+
     @router.post("/speed_change")
     def speed_change(request, sess, speed:float):
         """Handle playback speed change."""
         session_id = get_session_id(sess)
         if DEBUG_AUDIO_ROUTES:
             print(f"[AUDIO_ROUTES] speed_change: {speed}")
-        
+
         # Update state
         _update_review_state(
             state_store, workflow_id, session_id,
             playback_speed=speed
         )
-        
+
         # Return JS to update client-side playback rate
-        return Script(_generate_speed_change_js(speed))
-    
+        return Script(generate_speed_change_js(REVIEW_AUDIO_CONFIG, speed))
+
     routes["speed_change"] = speed_change
-    
+
     @router.post("/toggle_auto_nav")
     async def toggle_auto_nav(request, sess):
         """Handle auto-navigate toggle (client-side only, no state persistence)."""
         # Checkbox only sends value when checked
         form_data = await request.form()
         auto_navigate = "auto_navigate" in form_data
-        
+
         if DEBUG_AUDIO_ROUTES:
             print(f"[AUDIO_ROUTES] toggle_auto_nav: {auto_navigate}")
-        
+
         # Return JS to update client-side flag (no server persistence —
         # auto-play is transient, resets on step navigation / page refresh)
         return Script(_generate_auto_nav_js(auto_navigate))
-    
+
     routes["toggle_auto_nav"] = toggle_auto_nav
-    
+
     @router.post("/replay_current")
     def replay_current(request, sess):
         """Handle replay current segment request."""
         if DEBUG_AUDIO_ROUTES:
             print(f"[AUDIO_ROUTES] replay_current")
-        
+
         # Return JS to replay current segment
         return Script(_generate_replay_js())
-    
+
     routes["replay_current"] = replay_current
-    
+
     return router, routes
