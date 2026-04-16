@@ -59,33 +59,33 @@ graph LR
     components_helpers --> models
     components_review_card --> utils
     components_review_card --> html_ids
-    components_step_renderer --> components_review_card
-    components_step_renderer --> components_audio_controls
-    components_step_renderer --> components_card_stack_config
-    components_step_renderer --> components_keyboard_config
     components_step_renderer --> components_callbacks
-    components_step_renderer --> html_ids
+    components_step_renderer --> components_audio_controls
+    components_step_renderer --> components_review_card
+    components_step_renderer --> components_card_stack_config
     components_step_renderer --> models
-    routes_audio --> components_callbacks
-    routes_audio --> routes_core
+    components_step_renderer --> components_keyboard_config
+    components_step_renderer --> html_ids
     routes_audio --> models
-    routes_card_stack --> components_review_card
+    routes_audio --> routes_core
+    routes_audio --> components_callbacks
     routes_card_stack --> routes_core
+    routes_card_stack --> components_review_card
     routes_card_stack --> components_card_stack_config
     routes_card_stack --> components_step_renderer
     routes_card_stack --> models
-    routes_commit --> utils
     routes_commit --> routes_core
     routes_commit --> services_graph
     routes_commit --> models
-    routes_core --> components_review_card
+    routes_commit --> utils
     routes_core --> models
-    routes_init --> routes_core
+    routes_core --> components_review_card
     routes_init --> routes_commit
+    routes_init --> routes_audio
+    routes_init --> routes_core
+    routes_init --> models
     routes_init --> services_graph
     routes_init --> routes_card_stack
-    routes_init --> routes_audio
-    routes_init --> models
 ```
 
 *31 cross-module dependencies detected*

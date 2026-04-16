@@ -15,7 +15,6 @@ REVIEW_CS_CONFIG = CardStackConfig(
     prefix="sd-review",
     card_width_min=30,
     card_width_max=70,
-    card_width_step=5,
     style=CardStackStyleConfig(
         section_gap="0.75rem",
         slot_padding="0.125rem",
