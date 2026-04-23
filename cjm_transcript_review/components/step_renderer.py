@@ -42,6 +42,9 @@ from cjm_fasthtml_card_stack.keyboard.actions import (
 # Web Audio library
 from cjm_fasthtml_web_audio.components import render_audio_urls_input, render_initial_speed_sync
 
+# Design system recipes (V10 panel variants — G18: REVIEW_CONTENT viewport elevation)
+from cjm_fasthtml_design_system.panels import panels
+
 # VAD alignment utilities (for boundary detection across assembled segments)
 from cjm_transcript_vad_align.utils import (
     get_audio_file_boundaries, get_audio_file_count, get_audio_file_position,
@@ -254,7 +257,11 @@ def render_review_content(
         callbacks_script,
 
         id=ReviewHtmlIds.REVIEW_CONTENT,
-        cls=combine_classes(grow(), min_h(0), overflow.hidden, flex_display, flex_direction.col)
+        # G18: REVIEW_CONTENT adopts panels.structural_container so Phase 3's card-stack
+        # viewport matches Phase 2's column panels (P2 predictability). Phase 3 previously
+        # rendered the viewport with no fill/border; this elevates it to base_200 + border
+        # + rounded-box, consistent with _SEG_COLUMN_CLS / _ALIGNMENT_COLUMN_CLS in segment-align.
+        cls=combine_classes(grow(), min_h(0), overflow.hidden, flex_display, flex_direction.col, panels.structural_container)
     )
 
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-footer

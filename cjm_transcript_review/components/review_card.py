@@ -12,7 +12,7 @@ from fasthtml.common import Button, Div, Span, P
 
 # DaisyUI components
 from cjm_fasthtml_daisyui.components.data_display.badge import badge, badge_styles
-from cjm_fasthtml_daisyui.components.data_display.card import card, card_body
+from cjm_fasthtml_daisyui.components.data_display.card import card_body
 from cjm_fasthtml_daisyui.components.feedback.loading import loading, loading_styles, loading_sizes
 from cjm_fasthtml_daisyui.components.actions.button import btn, btn_sizes, btn_colors, btn_behaviors, btn_modifiers
 from cjm_fasthtml_daisyui.utilities.semantic_colors import bg_dui, text_dui, border_dui
@@ -39,6 +39,9 @@ from cjm_fasthtml_lucide_icons.factory import lucide_icon
 # Card stack library
 from cjm_fasthtml_card_stack.core.constants import CardRole
 from cjm_fasthtml_card_stack.core.models import CardRenderContext
+
+# Design system recipes (V10 P5 content_card)
+from cjm_fasthtml_design_system.panels import panels
 
 # Segmentation and alignment models
 from cjm_transcript_segmentation.models import TextSegment
@@ -97,7 +100,7 @@ def render_review_card(
     
     # Time range display
     time_range = Span(
-        f"{format_time(chunk.start_time)} \u2192 {format_time(chunk.end_time)}",
+        f"{format_time(chunk.start_time)} → {format_time(chunk.end_time)}",
         cls=combine_classes(font_size.xs, font_family.mono, meta_opacity)
     )
     
@@ -202,9 +205,8 @@ def render_review_card(
         
         id=ReviewHtmlIds.review_card(seg.index),
         cls=combine_classes(
-            card, "review-card",
+            panels.content_card, "review-card",
             position.relative,
-            bg_dui.base_100,
             w.full,
             transition.all, duration(150),
             boundary_cls,
