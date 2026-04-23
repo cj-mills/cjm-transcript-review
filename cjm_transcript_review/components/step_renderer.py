@@ -42,8 +42,11 @@ from cjm_fasthtml_card_stack.keyboard.actions import (
 # Web Audio library
 from cjm_fasthtml_web_audio.components import render_audio_urls_input, render_initial_speed_sync
 
-# Design system recipes (V10 panel variants — G18: REVIEW_CONTENT viewport elevation)
+# Design system recipes (V10 panel + chrome variants)
+#  — panels.structural_container: G18 REVIEW_CONTENT viewport elevation
+#  — chrome.column_header / column_footer: step-level toolbar + footer bands
 from cjm_fasthtml_design_system.panels import panels
+from cjm_fasthtml_design_system.chrome import chrome
 
 # VAD alignment utilities (for boundary detection across assembled segments)
 from cjm_transcript_vad_align.utils import (
@@ -110,7 +113,7 @@ def render_review_toolbar(
         ),
 
         id=ReviewHtmlIds.REVIEW_TOOLBAR,
-        cls=combine_classes(flex_display, gap(2), items.center),
+        cls=combine_classes(chrome.column_header, flex_display, gap(2), items.center),
         hx_swap_oob="true" if oob else None
     )
 
@@ -280,7 +283,7 @@ def render_review_footer(
         ),
         render_review_stats(assembled),
         id=ReviewHtmlIds.REVIEW_FOOTER,
-        cls=combine_classes(flex_display, justify.between, items.center, gap(4))
+        cls=combine_classes(chrome.column_footer, flex_display, justify.between, items.center, gap(4))
     )
 
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-step
