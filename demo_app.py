@@ -68,6 +68,9 @@ from cjm_transcript_vad_align.models import VADChunk
 # Lucide icons
 from cjm_fasthtml_lucide_icons.factory import lucide_icon
 
+# Design system — icon size roles
+from cjm_fasthtml_design_system.icons import icons
+
 # Review library imports
 from cjm_transcript_review.models import ReviewUrls
 from cjm_transcript_review.html_ids import ReviewHtmlIds
@@ -361,7 +364,7 @@ def render_demo_page(
         commit_button = None
         if urls.commit:
             commit_button = Button(
-                lucide_icon("database"),
+                lucide_icon("database", size=icons.text_button),
                 Span("Commit to Graph", cls=str(m.l(2))),
                 cls=combine_classes(btn, btn_colors.success, btn_sizes.sm, flex_display, items.center),
                 hx_post=urls.commit,
