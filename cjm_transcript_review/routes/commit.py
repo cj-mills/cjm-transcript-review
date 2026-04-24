@@ -19,6 +19,9 @@ from cjm_fasthtml_daisyui.components.feedback.alert import alert, alert_colors
 
 from cjm_fasthtml_lucide_icons.factory import lucide_icon
 
+# Design system recipes (V11 icon-size roles)
+from cjm_fasthtml_design_system.icons import icons
+
 from cjm_fasthtml_interactions.core.state_store import get_session_id
 
 from cjm_plugin_system.core.manager import PluginManager
@@ -52,11 +55,11 @@ def _render_commit_alert(
 ) -> Div:  # Alert element with optional auto-dismiss script
     """Render a success or error alert for commit result."""
     if result.success:
-        icon = lucide_icon("circle-check")
+        icon = lucide_icon("circle-check", size=icons.status_inline)
         message = f"Committed {result.segment_count} segments to graph"
         alert_cls = combine_classes(alert, alert_colors.success)
     else:
-        icon = lucide_icon("circle-alert")
+        icon = lucide_icon("circle-alert", size=icons.status_inline)
         message = result.error or "Commit failed"
         alert_cls = combine_classes(alert, alert_colors.error)
     
