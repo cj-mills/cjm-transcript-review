@@ -70,6 +70,7 @@ from cjm_fasthtml_lucide_icons.factory import lucide_icon
 
 # Design system — icon size roles
 from cjm_fasthtml_design_system.icons import icons
+from cjm_fasthtml_design_system.text_tiers import text_tiers
 
 # Review library imports
 from cjm_transcript_review.models import ReviewUrls
@@ -283,7 +284,7 @@ def render_demo_page(
                 cls=combine_classes(
                     font_size.sm, font_weight.bold,
                     uppercase, tracking.wide,
-                    text_dui.base_content.opacity(50)
+                    text_tiers.muted
                 )
             ),
             Span(
@@ -342,7 +343,7 @@ def render_demo_page(
         # Placeholder chrome
         toolbar = Div(
             P("Toolbar will appear here after initialization.",
-              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
+              cls=combine_classes(font_size.sm, text_tiers.muted)),
             id=DemoHtmlIds.SHARED_TOOLBAR,
             cls=str(p(2))
         )
@@ -352,7 +353,7 @@ def render_demo_page(
 
         footer = Div(
             P("Footer with progress will appear here after initialization.",
-              cls=combine_classes(font_size.sm, text_dui.base_content.opacity(50))),
+              cls=combine_classes(font_size.sm, text_tiers.muted)),
             id=DemoHtmlIds.SHARED_FOOTER,
             cls=combine_classes(
                 chrome.column_footer,
@@ -382,7 +383,7 @@ def render_demo_page(
                        cls=combine_classes(font_size._3xl, font_weight.bold)),
                     P(
                         "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
-                        cls=combine_classes(text_dui.base_content.opacity(70))
+                        cls=combine_classes(text_tiers.secondary)
                     ),
                 ),
                 Div(

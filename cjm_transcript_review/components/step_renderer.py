@@ -15,6 +15,8 @@ from fasthtml.common import Div, Span, Input, Label, H2, P
 from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui, bg_dui
 from cjm_fasthtml_daisyui.components.data_input.text_input import text_input, text_input_sizes
 
+from cjm_fasthtml_design_system.text_tiers import text_tiers
+
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
 from cjm_fasthtml_tailwind.utilities.sizing import w, h, min_h
@@ -89,7 +91,7 @@ def render_review_toolbar(
         Div(
             Label(
                 "Title:",
-                cls=combine_classes(font_size.sm, text_dui.base_content.opacity(70), m.r(2))
+                cls=combine_classes(font_size.sm, text_tiers.secondary, m.r(2))
             ),
             Input(
                 type="text",
@@ -135,7 +137,7 @@ def render_review_stats(
     return Div(
         Span(
             stats_text,
-            cls=combine_classes(font_size.sm, text_dui.base_content.opacity(70))
+            cls=combine_classes(font_size.sm, text_tiers.secondary)
         ),
         id=ReviewHtmlIds.REVIEW_STATS,
         hx_swap_oob="true" if oob else None
@@ -160,7 +162,7 @@ def render_review_source_position(
     return Span(
         content,
         id=ReviewHtmlIds.SOURCE_POSITION,
-        cls=combine_classes(font_size.sm, text_dui.base_content.opacity(70)),
+        cls=combine_classes(font_size.sm, text_tiers.secondary),
         hx_swap_oob="true" if oob else None,
     )
 
@@ -335,7 +337,7 @@ def render_review_step(
                 H2("Review & Commit", cls=combine_classes(font_size._3xl, font_weight.bold)),
                 P(
                     "Verify segments and commit to context graph.",
-                    cls=combine_classes(text_dui.base_content.opacity(70))
+                    cls=combine_classes(text_tiers.secondary)
                 ),
             ),
             Div(
