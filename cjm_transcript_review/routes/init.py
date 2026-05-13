@@ -8,7 +8,7 @@ __all__ = ['init_review_routers']
 # %% ../../nbs/routes/init.ipynb #review-init-imports
 from typing import List, Dict, Callable, Tuple, Optional
 
-from fasthtml.common import APIRouter
+from cjm_fasthtml_app_core.core.routing import APIRouter
 
 from cjm_fasthtml_card_stack.core.models import CardStackUrls
 from cjm_fasthtml_interactions.core.state_store import get_session_id

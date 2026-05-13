@@ -9,7 +9,8 @@ __all__ = ['DEBUG_COMMIT_ROUTES', 'COMMIT_ALERT_ID', 'CommitResult', 'init_commi
 from typing import Dict, Callable, Tuple, Any, Optional
 from dataclasses import dataclass
 
-from fasthtml.common import APIRouter, Div, Span, Script
+from fasthtml.common import Div, Span, Script
+from cjm_fasthtml_app_core.core.routing import APIRouter
 
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
 from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import flex_display, items, gap
