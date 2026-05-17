@@ -9,7 +9,10 @@ __all__ = ['DEBUG_REVIEW_RENDER', 'render_review_toolbar', 'render_review_stats'
 # %% ../../nbs/components/step_renderer.ipynb #review-sr-imports
 from typing import Any, List, Optional
 
-from fasthtml.common import Div, Span, Input, Label, H2, P
+from fasthtml.common import Div, Span, Input, Label
+
+# App-core layout primitives
+from cjm_fasthtml_app_core.components.step_header_band import render_step_header_band
 
 # DaisyUI components
 from cjm_fasthtml_daisyui.utilities.semantic_colors import text_dui, bg_dui
@@ -20,7 +23,7 @@ from cjm_fasthtml_design_system.text_tiers import text_tiers
 # Tailwind utilities
 from cjm_fasthtml_tailwind.utilities.spacing import p, m
 from cjm_fasthtml_tailwind.utilities.sizing import w, h, min_h
-from cjm_fasthtml_tailwind.utilities.typography import font_size, font_weight
+from cjm_fasthtml_tailwind.utilities.typography import font_size
 from cjm_fasthtml_tailwind.utilities.layout import overflow
 from cjm_fasthtml_tailwind.utilities.flexbox_and_grid import (
     flex_display, flex_direction, justify, items, gap, grow
@@ -44,11 +47,13 @@ from cjm_fasthtml_card_stack.keyboard.actions import (
 # Web Audio library
 from cjm_fasthtml_web_audio.components import render_audio_urls_input, render_initial_speed_sync
 
-# Design system recipes (V10 panel + chrome variants)
+# Design system recipes
 #  — panels.structural_container: G18 REVIEW_CONTENT viewport elevation
 #  — chrome.column_header / column_footer: step-level toolbar + footer bands
+#  — step_header_band.trailing: V2 anatomy slot for multi-trigger groups
 from cjm_fasthtml_design_system.panels import panels
 from cjm_fasthtml_design_system.chrome import chrome
+from cjm_fasthtml_design_system.step_chrome import step_header_band
 
 # VAD alignment utilities (for boundary detection across assembled segments)
 from cjm_transcript_vad_align.utils import (
@@ -331,21 +336,15 @@ def render_review_step(
     initial_speed_sync = render_initial_speed_sync(REVIEW_AUDIO_CONFIG, playback_speed)
 
     return Div(
-        # Header with keyboard hints trigger
-        Div(
-            Div(
-                H2("Review & Commit", cls=combine_classes(font_size._3xl, font_weight.bold)),
-                P(
-                    "Verify segments and commit to context graph.",
-                    cls=combine_classes(text_tiers.secondary)
-                ),
-            ),
-            Div(
+        # V2 step header band (multi-trigger pattern: settings + keyboard hints)
+        render_step_header_band(
+            title="Review & Commit",
+            subtitle="Verify segments and commit to context graph.",
+            trailing=Div(
                 settings_trigger,
                 hints_trigger,
-                cls=combine_classes(flex_display, items.center, gap(2)),
+                cls=step_header_band.trailing,
             ),
-            cls=combine_classes(flex_display, items.start, justify.between)
         ),
 
         # Toolbar with title input and audio controls

@@ -12,9 +12,11 @@ import tempfile
 import json
 
 from fasthtml.common import (
-    fast_app, Div, H1, P, Span, Button,
-    APIRouter, FileResponse,
+    fast_app, Div, P, Span, Button,
+    FileResponse,
 )
+
+from cjm_fasthtml_app_core.core.routing import APIRouter
 
 # Plugin system
 from cjm_plugin_system.core.manager import PluginManager
@@ -42,10 +44,12 @@ from cjm_fasthtml_tailwind.core.base import combine_classes
 # App core
 from cjm_fasthtml_app_core.core.routing import register_routes
 from cjm_fasthtml_app_core.core.htmx import handle_htmx_request
+from cjm_fasthtml_app_core.components.step_header_band import render_step_header_band
 
 # Design system recipes (V10 panel / chrome variants)
 from cjm_fasthtml_design_system.panels import panels
 from cjm_fasthtml_design_system.chrome import chrome
+from cjm_fasthtml_design_system.step_chrome import step_header_band
 
 # Interactions library
 from cjm_fasthtml_interactions.core.state_store import get_session_id
@@ -104,6 +108,7 @@ class DemoHtmlIds:
     SHARED_TOOLBAR = "review-demo-toolbar"
     SHARED_FOOTER = "review-demo-footer"
     SETTINGS_MODAL = "review-demo-settings-modal"
+    SETTINGS_TRIGGER = "review-demo-settings-trigger"  # OOB-swap slot inside V2 header band trailing (G3-canonical placement)
     MINI_STATS = "review-demo-mini-stats"
     KEYBOARD_SYSTEM = "review-demo-kb-system"
     COMMIT_ALERT_CONTAINER = "commit-alert-container"
@@ -225,9 +230,17 @@ def create_demo_init_handler(
             card_width=ctx.card_width,
         )
 
-        # OOB updates for chrome
-        toolbar_oob = Div(
+        # OOB updates for chrome.
+        # Settings trigger now lives in the V2 header band's trailing slot (G3-canonical
+        # placement) \u2014 OOB-swapped into DemoHtmlIds.SETTINGS_TRIGGER, not the toolbar.
+        # The toolbar slot carries only the review toolbar (title input + audio controls).
+        settings_trigger_oob = Div(
             settings_trigger,
+            id=DemoHtmlIds.SETTINGS_TRIGGER,
+            hx_swap_oob="innerHTML"
+        )
+
+        toolbar_oob = Div(
             render_review_toolbar(
                 playback_speed=ctx.playback_speed,
                 auto_navigate=ctx.auto_navigate,
@@ -259,7 +272,7 @@ def create_demo_init_handler(
             hx_swap_oob="true",
         )
 
-        return (content, toolbar_oob, settings_modal_oob, footer_oob, mini_stats_oob)
+        return (content, settings_trigger_oob, toolbar_oob, settings_modal_oob, footer_oob, mini_stats_oob)
 
     return init_handler
 
@@ -375,23 +388,27 @@ def render_demo_page(
         # Alert container for commit feedback
         alert_container = Div(id=DemoHtmlIds.COMMIT_ALERT_CONTAINER)
 
+        # V2 step header band — multi-trigger pattern.
+        # Settings trigger is placed in the V2 trailing slot (G3-canonical placement)
+        # via a stable-ID OOB-swap target — the init handler populates it with the
+        # actual settings_trigger element. The empty Div is a placeholder before init.
+        # Order in the trailing slot: settings → hints → commit (icon disclosure
+        # triggers first, primary CTA last). commit_button may be None when
+        # urls.commit is unset; V2's flex+gap layout handles either case correctly.
+        settings_trigger_slot = Div(id=DemoHtmlIds.SETTINGS_TRIGGER)
+        trailing_children = [settings_trigger_slot, hints_trigger]
+        if commit_button is not None:
+            trailing_children.append(commit_button)
+
         return Div(
-            # Header with commit button and keyboard hints trigger
-            Div(
-                Div(
-                    H1("Review Demo",
-                       cls=combine_classes(font_size._3xl, font_weight.bold)),
-                    P(
-                        "Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
-                        cls=combine_classes(text_tiers.secondary)
-                    ),
+            # V2 step header band (replaces hand-rolled inline header — same shape)
+            render_step_header_band(
+                title="Review Demo",
+                subtitle="Review assembled segments with timing and source info. Navigate with Up/Down arrows. Audio plays on navigation.",
+                trailing=Div(
+                    *trailing_children,
+                    cls=step_header_band.trailing,
                 ),
-                Div(
-                    hints_trigger,
-                    commit_button,
-                    cls=combine_classes(flex_display, items.center, gap(2)),
-                ),
-                cls=combine_classes(flex_display, justify.between, items.start, m.b(2))
             ),
 
             # Alert container (for commit feedback)
